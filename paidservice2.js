@@ -10,7 +10,7 @@
         isRunning: false,
         token: null,
         startTime: null,
-        stakeUser: "mrekenocoin79",
+        stakeUser: "mrkenocoin79",
         stats: { profit: 0, wagered: 0, startBal: 0, bets: 0, wins: 0, loss: 0, maxDD: 0 },
         selectedCurrency: "DOGE",
         currentStatus: "IDLE",
@@ -271,165 +271,165 @@ ${statusHeader}
         `;
         document.head.appendChild(s);
         
-        const d = document.createElement("div");
-        d.id = "orion-wrap";
-        d.innerHTML = `
-            <div class="orion-header">
-                <div class="orion-title">
-                    <span>⚡</span> ORION v1 <span>⚡</span>
-                </div>
-                <div class="orion-badge">PREMIUM EDITION</div>
-            </div>
-            
-            <div class="orion-user" id="st-user">
-                Loading...
-            </div>
-            
-            <div class="orion-section">
-                <div class="orion-section-title">
-                    <span>⚙️</span> SYSTEM CONFIG
-                </div>
-                <div class="orion-grid">
-                    <div style="grid-column: span 2">
-                        <div class="orion-input-group">
-                            <label>CURRENCY</label>
-                            <select id="p-currency" class="orion-input"></select>
-                        </div>
-                    </div>
-                    <div class="orion-input-group">
-                        <label>BASE BET</label>
-                        <input id="p-minbet" class="orion-input" value="0.001" step="any" placeholder="0.001">
-                    </div>
-                    <div class="orion-input-group">
-                        <label>DIVISOR</label>
-                        <input id="p-div" class="orion-input" value="2000" placeholder="2000">
-                    </div>
+const d = document.createElement("div");
+d.id = "orion-wrap";
+d.innerHTML = `
+    <div class="orion-header">
+        <div class="orion-title">
+            <span>⚡</span> ORION v1 <span>⚡</span>
+        </div>
+        <div class="orion-badge">PREMIUM EDITION</div>
+    </div>
+    
+    <div class="orion-user" id="st-user">
+        Loading...
+    </div>
+    
+    <div class="orion-section">
+        <div class="orion-section-title">
+            <span>⚙️</span> SYSTEM CONFIG
+        </div>
+        <div class="orion-grid">
+            <div style="grid-column: span 2">
+                <div class="orion-input-group">
+                    <label>CURRENCY</label>
+                    <select id="p-currency" class="orion-input"></select>
                 </div>
             </div>
-            
-            <div class="orion-section">
-                <div class="orion-section-title">
-                    <span>🎲</span> LIMBO STRATEGY
-                </div>
-                <div class="orion-grid">
-                    <div class="orion-input-group">
-                        <label>PAYOUT</label>
-                        <input id="p-limbo-payout" class="orion-input" value="1.0001" step="0.0001" placeholder="1.0001">
-                    </div>
-                    <div class="orion-input-group">
-                        <label>CYCLES</label>
-                        <input id="p-limbo-cycles" class="orion-input" value="3" placeholder="3">
-                    </div>
-                </div>
+            <div class="orion-input-group">
+                <label>BASE BET</label>
+                <input id="p-minbet" class="orion-input" value="0.001" step="any" placeholder="0.001">
             </div>
-            
-            <div class="orion-section">
-                <div class="orion-section-title">
-                    <span>🎯</span> DICE STRATEGY
-                </div>
-                <div class="orion-grid">
-                    <div class="orion-input-group">
-                        <label>CHANCE %</label>
-                        <input id="p-dice-chance" class="orion-input" value="98" step="0.1" placeholder="98">
-                    </div>
-                    <div class="orion-input-group">
-                        <label>CYCLES</label>
-                        <input id="p-dice-cycles" class="orion-input" value="2" placeholder="2">
-                    </div>
-                </div>
+            <div class="orion-input-group">
+                <label>DIVISOR</label>
+                <input id="p-div" class="orion-input" value="2000" placeholder="2000">
             </div>
-            
-            <div class="orion-section">
-                <div class="orion-section-title">
-                    <span>🔄</span> RECOVERY MODE
-                    <span id="recovery-status-badge" class="recovery-badge disabled">DISABLED</span>
-                </div>
-                <div class="orion-checkbox">
-                    <input type="checkbox" id="p-use-recovery" checked>
-                    <label>Enable Automatic Recovery</label>
-                </div>
-                <div id="recovery-toggle-status" class="recovery-status-text enabled">✓ RECOVERY IS ENABLED</div>
-                <div class="orion-grid">
-                    <div class="orion-input-group">
-                        <label>MULTIPLIER</label>
-                        <input id="p-recovery-mult" class="orion-input" value="1.0001" step="0.0001">
-                    </div>
-                    <div class="orion-input-group">
-                        <label>MAX BET (BAL%)</label>
-                        <input id="p-recovery-bet-mult" class="orion-input" value="0.25" step="0.01">
-                    </div>
-                </div>
-                
-                <div class="orion-info-box" id="recovery-explanation">
-                    <strong>🔍 RECOVERY MECHANISM</strong>
-                    • <b>Disabled</b>: Recovery dimatikan<br>
-                    • <b>Standby</b>: Recovery aktif, menunggu loss<br>
-                    • <b>Active</b>: Loss terdeteksi, mengejar profit<br><br>
-                    
-                    <b>Cara kerja:</b><br>
-                    1. Saat profit negatif, hitung target bet:<br>
-                       <code>target = |loss| / (multiplier - 1)</code><br>
-                    2. Contoh: loss 0.001, mult 1.0001<br>
-                       <code>target = 0.001 / 0.0001 = 10 DOGE</code><br>
-                    3. Bet dibatasi maksimal <span id="max-recovery-example">25%</span> dari balance<br>
-                    4. Ulangi sampai profit kembali positif
-                </div>
+        </div>
+    </div>
+    
+    <div class="orion-section">
+        <div class="orion-section-title">
+            <span>🎲</span> LIMBO STRATEGY
+        </div>
+        <div class="orion-grid">
+            <div class="orion-input-group">
+                <label>PAYOUT</label>
+                <input id="p-limbo-payout" class="orion-input" value="1.0001" step="0.0001" placeholder="1.0001">
             </div>
-            
-            <div class="orion-stats">
-                <div class="orion-stat-row">
-                    <span class="orion-stat-label">TIME</span>
-                    <span class="orion-stat-value" id="st-time">00:00:00</span>
-                </div>
-                <div class="orion-stat-row">
-                    <span class="orion-stat-label">STATUS</span>
-                    <span class="orion-stat-value" id="st-status" style="color: #38BDF8">IDLE</span>
-                </div>
-                <div class="orion-stat-row">
-                    <span class="orion-stat-label">RECOVERY</span>
-                    <span class="orion-stat-value" id="st-recovery">DISABLED</span>
-                </div>
-                <div class="orion-stat-row">
-                    <span class="orion-stat-label">BALANCE</span>
-                    <span class="orion-stat-value" id="st-startbal">0.00000000</span>
-                </div>
-                <div class="orion-stat-row">
-                    <span class="orion-stat-label">PROFIT</span>
-                    <span class="orion-stat-value" id="st-profit">0.00000000</span>
-                </div>
-                <div class="orion-stat-row">
-                    <span class="orion-stat-label">WAGERED</span>
-                    <span class="orion-stat-value" id="st-wager">0.00000000</span>
-                </div>
-                <div class="orion-stat-row">
-                    <span class="orion-stat-label">MAX DD</span>
-                    <span class="orion-stat-value" style="color: #F87171" id="st-dd">0.00000000</span>
-                </div>
-                <div class="orion-stat-row">
-                    <span class="orion-stat-label">BETS</span>
-                    <span class="orion-stat-value" id="st-bets">0</span>
-                </div>
-                <div class="orion-stat-row">
-                    <span class="orion-stat-label">W/L</span>
-                    <span class="orion-stat-value" id="st-wl">0/0</span>
-                </div>
-                <div class="orion-stat-row">
-                    <span class="orion-stat-label">SPEED</span>
-                    <span class="orion-stat-value" id="st-speed">0 b/s</span>
-                </div>
+            <div class="orion-input-group">
+                <label>CYCLES</label>
+                <input id="p-limbo-cycles" class="orion-input" value="3" placeholder="3">
             </div>
-            
-            <div class="orion-log" id="st-log">
-                None
+        </div>
+    </div>
+    
+    <div class="orion-section">
+        <div class="orion-section-title">
+            <span>🎯</span> DICE STRATEGY
+        </div>
+        <div class="orion-grid">
+            <div class="orion-input-group">
+                <label>CHANCE %</label>
+                <input id="p-dice-chance" class="orion-input" value="98" step="0.1" placeholder="98">
             </div>
-            
-            <div class="orion-buttons">
-                <button id="p-start" class="orion-btn orion-btn-start">START</button>
-                <button id="p-stop" class="orion-btn orion-btn-stop">STOP</button>
+            <div class="orion-input-group">
+                <label>CYCLES</label>
+                <input id="p-dice-cycles" class="orion-input" value="2" placeholder="2">
             </div>
-        `;
+        </div>
+    </div>
+    
+    <div class="orion-section">
+        <div class="orion-section-title">
+            <span>🔄</span> RECOVERY MODE
+            <span id="recovery-status-badge" class="recovery-badge disabled">DISABLED</span>
+        </div>
+        <div class="orion-checkbox">
+            <input type="checkbox" id="p-use-recovery" checked>
+            <label>Enable Automatic Recovery</label>
+        </div>
+        <div id="recovery-toggle-status" class="recovery-status-text enabled">✓ RECOVERY IS ENABLED</div>
+        <div class="orion-grid">
+            <div class="orion-input-group">
+                <label>MULTIPLIER</label>
+                <input id="p-recovery-mult" class="orion-input" value="1.0001" step="0.0001">
+            </div>
+            <div class="orion-input-group">
+                <label>MAX BET (BAL%)</label>
+                <input id="p-recovery-bet-mult" class="orion-input" value="0.25" step="0.01">
+            </div>
+        </div>
         
-        document.body.appendChild(d);
+        <div class="orion-info-box" id="recovery-explanation">
+            <strong>🔍 RECOVERY MECHANISM</strong>
+            • <b>Disabled</b>: Recovery dimatikan<br>
+            • <b>Standby</b>: Recovery aktif, menunggu loss<br>
+            • <b>Active</b>: Loss terdeteksi, mengejar profit<br><br>
+            
+            <b>Cara kerja:</b><br>
+            1. Saat profit negatif, hitung target bet:<br>
+               <code>target = |loss| / (multiplier - 1)</code><br>
+            2. Contoh: loss 0.001, mult 1.0001<br>
+               <code>target = 0.001 / 0.0001 = 10 DOGE</code><br>
+            3. Bet dibatasi maksimal <span id="max-recovery-example">25%</span> dari balance<br>
+            4. Ulangi sampai profit kembali positif
+        </div>
+    </div>
+    
+    <div class="orion-stats">
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">TIME</span>
+            <span class="orion-stat-value" id="st-time">00:00:00</span>
+        </div>
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">STATUS</span>
+            <span class="orion-stat-value" id="st-status" style="color: #38BDF8">IDLE</span>
+        </div>
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">RECOVERY</span>
+            <span class="orion-stat-value" id="st-recovery">DISABLED</span>
+        </div>
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">BALANCE</span>
+            <span class="orion-stat-value" id="st-startbal">0.00000000</span>
+        </div>
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">PROFIT</span>
+            <span class="orion-stat-value" id="st-profit">0.00000000</span>
+        </div>
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">WAGERED</span>
+            <span class="orion-stat-value" id="st-wager">0.00000000</span>
+        </div>
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">MAX DD</span>
+            <span class="orion-stat-value" style="color: #F87171" id="st-dd">0.00000000</span>
+        </div>
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">BETS</span>
+            <span class="orion-stat-value" id="st-bets">0</span>
+        </div>
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">W/L</span>
+            <span class="orion-stat-value" id="st-wl">0/0</span>
+        </div>
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">SPEED</span>
+            <span class="orion-stat-value" id="st-speed">0 b/s</span>
+        </div>
+    </div>
+    
+    <div class="orion-log" id="st-log">
+        None
+    </div>
+    
+    <div class="orion-buttons">
+        <button id="p-start" class="orion-btn orion-btn-start">START</button>
+        <button id="p-stop" class="orion-btn orion-btn-stop">STOP</button>
+    </div>
+`;
+
+document.body.appendChild(d);
         
         // Event listener untuk checkbox recovery
         document.getElementById("p-use-recovery").addEventListener("change", function(e) {
