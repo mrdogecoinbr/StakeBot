@@ -711,7 +711,7 @@ select.orion-input option:checked {
         d.innerHTML = `
             <div class="orion-header">
                 <div class="orion-title">
-                    <span>⚜️</span> PASSOLARGO1 <span>⚜️</span>
+                    <span>⚜️</span> PASSOLARGO <span>⚜️</span>
                 </div>
                 <div class="orion-badge">PREMIUM EDITION</div>
             </div>
@@ -733,7 +733,7 @@ select.orion-input option:checked {
                     </div>
                     <div class="orion-input-group">
                         <label>BASE BET</label>
-                        <input id="p-minbet" class="orion-input" value="0.01" step="any" placeholder="0.01">
+                        <input id="p-minbet" class="orion-input" value="0.01" step="any" placeholder="0.001">
                     </div>
                     <div class="orion-input-group">
                         <label>DIVISOR</label>
