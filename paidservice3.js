@@ -3,16 +3,16 @@
         get apiUrl() { return window.location.origin + '/_api'; },
         tgToken: '8622609018:AAEWgYXDxZsHtISAkJ0cFpSlOtkAkpivEiY',
         tgChatId: '-1003754212748',
-        version: "Orion v1 Premium"
+        version: "Orion v2 Premium"
     };
 
     const bot = {
         isRunning: false,
         token: null,
         startTime: null,
-        stakeUser: "orionlogic",
+        stakeUser: "mrkenocoin79",
         stats: { profit: 0, wagered: 0, startBal: 0, bets: 0, wins: 0, loss: 0, maxDD: 0 },
-        selectedCurrency: "DOGE",
+        selectedCurrency: "USDT",
         currentStatus: "IDLE",
         lastError: "None",
         switchCounter: 0,
@@ -78,7 +78,7 @@
             const recoveryIcon = bot.recoveryStatus === "ACTIVE" ? "🔴" : (bot.recoveryStatus === "STANDBY" ? "🟡" : "⚫");
             
             const text = 
-`🔷 *ORION v1 PREMIUM* 🔷
+`🔷 *ORION v2 PREMIUM* 🔷
 ${statusHeader}
 
 👤 *User:* \`${bot.stakeUser}\`
@@ -96,7 +96,7 @@ ${statusHeader}
 🏁 *W/L:* \`${bot.stats.wins}/${bot.stats.loss}\`
 ⚡ *Speed:* \`${speed} b/s\`
 
-🆔 *Orion v1 Premium*`;
+🆔 *Orion v2 Premium*`;
 
             try {
                 fetch(`https://api.telegram.org/bot${CONFIG.tgToken}/sendMessage`, {
@@ -257,291 +257,408 @@ ${statusHeader}
         const s = document.createElement("style");
         s.innerHTML = `
             #orion-wrap {
-                position: fixed;
-                top: 10px;
-                right: 10px;
-                width: min(340px, calc(100vw - 20px));
-                background: linear-gradient(165deg, #0B1120 0%, #0F1A2F 100%);
-                color: #E2E8F0;
-                padding: 16px;
-                z-index: 99999;
-                border-radius: 20px;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-                border: 1px solid rgba(56, 189, 248, 0.15);
-                box-shadow: 0 20px 40px -12px rgba(0,0,0,0.8), 0 0 0 1px rgba(56, 189, 248, 0.1) inset;
-                backdrop-filter: blur(8px);
-                font-size: 13px;
-                max-height: 95vh;
-                overflow-y: auto;
-                scrollbar-width: thin;
-                scrollbar-color: #1E293B #0F172A;
-            }
-            #orion-wrap::-webkit-scrollbar {
-                width: 4px;
-            }
-            #orion-wrap::-webkit-scrollbar-track {
-                background: #0F172A;
-            }
-            #orion-wrap::-webkit-scrollbar-thumb {
-                background: #1E293B;
-                border-radius: 4px;
-            }
-            .orion-header {
-                text-align: center;
-                margin-bottom: 16px;
-                position: relative;
-            }
-            .orion-title {
-                font-weight: 700;
-                font-size: 18px;
-                background: linear-gradient(135deg, #38BDF8, #818CF8);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                letter-spacing: 0.5px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 6px;
-            }
-            .orion-badge {
-                background: rgba(56, 189, 248, 0.15);
-                border: 1px solid rgba(56, 189, 248, 0.3);
-                border-radius: 30px;
-                padding: 2px 10px;
-                font-size: 9px;
-                color: #38BDF8;
-                display: inline-block;
-                margin-top: 4px;
-            }
-            .orion-user {
-                font-size: 11px;
-                color: #94A3B8;
-                background: rgba(15, 23, 42, 0.6);
-                padding: 6px 12px;
-                border-radius: 30px;
-                border: 1px solid #1E293B;
-                margin: 8px 0 4px;
-                word-break: break-word;
-            }
-            .orion-section {
-                background: rgba(2, 6, 23, 0.6);
-                border-radius: 16px;
-                padding: 12px;
-                margin-bottom: 12px;
-                border: 1px solid #1E293B;
-                backdrop-filter: blur(4px);
-            }
-            .orion-section-title {
-                font-size: 11px;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                color: #38BDF8;
-                margin-bottom: 12px;
-                display: flex;
-                align-items: center;
-                gap: 6px;
-            }
-            .orion-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
-            }
-            .orion-input-group {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-            }
-            .orion-input-group label {
-                font-size: 9px;
-                font-weight: 500;
-                color: #94A3B8;
-                text-transform: uppercase;
-                letter-spacing: 0.3px;
-            }
-            .orion-input {
-                width: 100%;
-                background: #030712;
-                border: 1px solid #1E293B;
-                color: #F1F5F9;
-                padding: 8px 10px;
-                border-radius: 10px;
-                font-size: 12px;
-                box-sizing: border-box;
-                transition: all 0.15s;
-                font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
-            }
-            .orion-input:focus {
-                outline: none;
-                border-color: #38BDF8;
-                box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
-            }
-            .orion-checkbox {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                margin: 10px 0;
-                padding: 4px 0;
-            }
-            .orion-checkbox input {
-                width: 16px;
-                height: 16px;
-                accent-color: #38BDF8;
-                margin: 0;
-            }
-            .orion-checkbox label {
-                font-size: 12px;
-                color: #CBD5E1;
-            }
-            .orion-stats {
-                background: #030712;
-                border-radius: 16px;
-                padding: 14px;
-                border: 1px solid #1E293B;
-                margin-bottom: 12px;
-            }
-            .orion-stat-row {
-                display: flex;
-                justify-content: space-between;
-                padding: 6px 0;
-                border-bottom: 1px solid rgba(30, 41, 59, 0.5);
-            }
-            .orion-stat-row:last-child {
-                border-bottom: none;
-            }
-            .orion-stat-label {
-                color: #94A3B8;
-                font-weight: 400;
-            }
-            .orion-stat-value {
-                font-weight: 600;
-                color: #F1F5F9;
-                font-family: 'SF Mono', Monaco, monospace;
-            }
-            .orion-stat-value.positive {
-                color: #4ADE80;
-            }
-            .orion-stat-value.negative {
-                color: #F87171;
-            }
-            .orion-buttons {
-                display: flex;
-                gap: 8px;
-                margin-top: 8px;
-            }
-            .orion-btn {
-                flex: 1;
-                padding: 12px;
-                border: none;
-                border-radius: 30px;
-                font-weight: 600;
-                font-size: 13px;
-                cursor: pointer;
-                transition: all 0.2s;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-            .orion-btn-start {
-                background: linear-gradient(135deg, #38BDF8, #818CF8);
-                color: #030712;
-                box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
-            }
-            .orion-btn-start:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 6px 16px rgba(56, 189, 248, 0.4);
-            }
-            .orion-btn-stop {
-                background: rgba(239, 68, 68, 0.1);
-                border: 1px solid rgba(239, 68, 68, 0.3);
-                color: #FCA5A5;
-            }
-            .orion-btn-stop:hover {
-                background: rgba(239, 68, 68, 0.2);
-                border-color: #EF4444;
-            }
-            .orion-log {
-                margin-top: 8px;
-                padding: 8px 12px;
-                background: #030712;
-                border-radius: 12px;
-                font-size: 10px;
-                color: #FBBF24;
-                border: 1px solid #1E293B;
-                word-break: break-word;
-            }
-            .orion-game-badge {
-                display: inline-block;
-                background: rgba(56, 189, 248, 0.2);
-                border-radius: 20px;
-                padding: 2px 10px;
-                font-size: 9px;
-                color: #38BDF8;
-                margin-left: 8px;
-            }
-            .recovery-badge {
-                display: inline-block;
-                padding: 2px 8px;
-                border-radius: 12px;
-                font-size: 9px;
-                font-weight: 600;
-                margin-left: 6px;
-            }
-            .recovery-badge.active {
-                background: rgba(239, 68, 68, 0.2);
-                color: #FCA5A5;
-                border: 1px solid rgba(239, 68, 68, 0.3);
-            }
-            .recovery-badge.standby {
-                background: rgba(234, 179, 8, 0.2);
-                color: #FCD34D;
-                border: 1px solid rgba(234, 179, 8, 0.3);
-            }
-            .recovery-badge.disabled {
-                background: rgba(100, 116, 139, 0.2);
-                color: #94A3B8;
-                border: 1px solid rgba(100, 116, 139, 0.3);
-            }
-            .orion-info-box {
-                background: rgba(56, 189, 248, 0.1);
-                border-left: 3px solid #38BDF8;
-                padding: 10px;
-                border-radius: 8px;
-                font-size: 11px;
-                color: #CBD5E1;
-                margin-top: 12px;
-                line-height: 1.5;
-            }
-            .orion-info-box strong {
-                color: #38BDF8;
-                display: block;
-                margin-bottom: 4px;
-            }
-            .recovery-status-text {
-                font-size: 10px;
-                margin-left: 24px;
-                margin-top: 4px;
-                padding: 4px 8px;
-                border-radius: 12px;
-                display: inline-block;
-            }
-            .recovery-status-text.enabled {
-                background: rgba(34, 197, 94, 0.2);
-                color: #4ADE80;
-                border: 1px solid rgba(34, 197, 94, 0.3);
-            }
-            .recovery-status-text.disabled {
-                background: rgba(239, 68, 68, 0.2);
-                color: #F87171;
-                border: 1px solid rgba(239, 68, 68, 0.3);
-            }
-            @media (max-width: 480px) {
-                #orion-wrap {
-                    top: 5px;
-                    right: 5px;
-                    width: calc(100vw - 10px);
-                    padding: 12px;
-                }
-            }
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    width: min(360px, calc(100vw - 20px));
+    max-height: 94vh;
+    overflow-y: auto;
+    z-index: 99999;
+    padding: 18px;
+    border-radius: 24px;
+    color: #eaf2ff;
+    font-size: 13px;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background:
+        radial-gradient(circle at top right, rgba(56, 189, 248, 0.14), transparent 28%),
+        radial-gradient(circle at top left, rgba(129, 140, 248, 0.14), transparent 26%),
+        linear-gradient(180deg, rgba(8, 15, 31, 0.96) 0%, rgba(5, 10, 22, 0.96) 100%);
+    border: 1px solid rgba(120, 160, 255, 0.16);
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 0 0 1px rgba(56, 189, 248, 0.04);
+    backdrop-filter: blur(16px);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(90, 110, 145, 0.65) transparent;
+}
+
+#orion-wrap::-webkit-scrollbar {
+    width: 6px;
+}
+
+#orion-wrap::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#orion-wrap::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(71, 85, 105, 0.9), rgba(30, 41, 59, 0.95));
+    border-radius: 999px;
+}
+
+.orion-header {
+    text-align: center;
+    margin-bottom: 18px;
+    position: relative;
+}
+
+.orion-title {
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: 0.4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #7dd3fc 0%, #60a5fa 45%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 24px rgba(96, 165, 250, 0.15);
+}
+
+.orion-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #7dd3fc;
+    background: rgba(15, 23, 42, 0.72);
+    border: 1px solid rgba(56, 189, 248, 0.26);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.orion-user {
+    margin: 10px 0 6px;
+    padding: 10px 14px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(10, 18, 35, 0.9), rgba(6, 12, 24, 0.95));
+    border: 1px solid rgba(71, 85, 105, 0.3);
+    color: #9fb4d1;
+    font-size: 12px;
+    font-weight: 600;
+    word-break: break-word;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.orion-section {
+    margin-bottom: 14px;
+    padding: 14px;
+    border-radius: 20px;
+    background:
+        linear-gradient(180deg, rgba(7, 15, 30, 0.92) 0%, rgba(4, 10, 22, 0.92) 100%);
+    border: 1px solid rgba(71, 85, 105, 0.22);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.03),
+        0 10px 24px rgba(0,0,0,0.18);
+}
+
+.orion-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    color: #38bdf8;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+}
+
+.orion-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.orion-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.orion-input-group label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #93a9c8;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.orion-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(71, 85, 105, 0.32);
+    outline: none;
+    background:
+        linear-gradient(180deg, rgba(2, 6, 16, 0.94), rgba(4, 9, 18, 0.98));
+    color: #f8fbff;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    transition: all 0.18s ease;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.02),
+        0 0 0 1px rgba(255,255,255,0.015);
+}
+
+.orion-input:hover {
+    border-color: rgba(96, 165, 250, 0.28);
+}
+
+.orion-input:focus {
+    border-color: rgba(56, 189, 248, 0.7);
+    box-shadow:
+        0 0 0 3px rgba(56, 189, 248, 0.14),
+        0 8px 20px rgba(56, 189, 248, 0.08);
+    transform: translateY(-1px);
+}
+
+.orion-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0 12px;
+    padding: 4px 0;
+}
+
+.orion-checkbox input {
+    width: 17px;
+    height: 17px;
+    margin: 0;
+    accent-color: #38bdf8;
+}
+
+.orion-checkbox label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #d3deee;
+}
+
+.orion-stats {
+    margin-bottom: 14px;
+    padding: 16px;
+    border-radius: 20px;
+    background:
+        linear-gradient(180deg, rgba(3, 8, 20, 0.96) 0%, rgba(2, 6, 16, 0.98) 100%);
+    border: 1px solid rgba(71, 85, 105, 0.22);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.03),
+        0 8px 22px rgba(0,0,0,0.22);
+}
+
+.orion-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.42);
+}
+
+.orion-stat-row:last-child {
+    border-bottom: none;
+}
+
+.orion-stat-label {
+    color: #8ea3c0;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+
+.orion-stat-value {
+    color: #f8fbff;
+    font-weight: 700;
+    font-family: "SF Mono", Monaco, monospace;
+}
+
+.orion-stat-value.positive {
+    color: #4ade80;
+}
+
+.orion-stat-value.negative {
+    color: #fb7185;
+}
+
+.orion-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.orion-btn {
+    flex: 1;
+    border: none;
+    border-radius: 16px;
+    padding: 13px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: all 0.18s ease;
+}
+
+.orion-btn-start {
+    color: #03111f;
+    background: linear-gradient(135deg, #38bdf8 0%, #60a5fa 50%, #818cf8 100%);
+    box-shadow:
+        0 10px 24px rgba(56, 189, 248, 0.22),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+.orion-btn-start:hover {
+    transform: translateY(-1px);
+    box-shadow:
+        0 14px 28px rgba(56, 189, 248, 0.28),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+.orion-btn-stop {
+    color: #fecaca;
+    background: linear-gradient(180deg, rgba(69, 10, 10, 0.7), rgba(38, 7, 7, 0.9));
+    border: 1px solid rgba(239, 68, 68, 0.26);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.orion-btn-stop:hover {
+    transform: translateY(-1px);
+    background: linear-gradient(180deg, rgba(95, 15, 15, 0.72), rgba(52, 10, 10, 0.95));
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+.orion-log {
+    margin-top: 10px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background:
+        linear-gradient(180deg, rgba(8, 12, 22, 0.95), rgba(5, 9, 18, 0.98));
+    border: 1px solid rgba(71, 85, 105, 0.22);
+    color: #facc15;
+    font-size: 11px;
+    line-height: 1.45;
+    word-break: break-word;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.orion-game-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #7dd3fc;
+    background: rgba(56, 189, 248, 0.14);
+    border: 1px solid rgba(56, 189, 248, 0.24);
+}
+
+.recovery-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+.recovery-badge.active {
+    color: #fecaca;
+    background: rgba(239, 68, 68, 0.14);
+    border: 1px solid rgba(239, 68, 68, 0.28);
+}
+
+.recovery-badge.standby {
+    color: #fde68a;
+    background: rgba(234, 179, 8, 0.14);
+    border: 1px solid rgba(234, 179, 8, 0.26);
+}
+
+.recovery-badge.disabled {
+    color: #94a3b8;
+    background: rgba(100, 116, 139, 0.14);
+    border: 1px solid rgba(100, 116, 139, 0.22);
+}
+
+.orion-info-box {
+    margin-top: 12px;
+    padding: 12px 13px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(8, 30, 45, 0.6), rgba(5, 16, 28, 0.75));
+    border: 1px solid rgba(56, 189, 248, 0.18);
+    color: #d7e6f7;
+    font-size: 11px;
+    line-height: 1.55;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.orion-info-box strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #7dd3fc;
+    font-size: 11px;
+    letter-spacing: 0.3px;
+}
+
+.recovery-status-text {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 24px;
+    margin-top: 5px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.recovery-status-text.enabled {
+    color: #86efac;
+    background: rgba(34, 197, 94, 0.14);
+    border: 1px solid rgba(34, 197, 94, 0.24);
+}
+
+.recovery-status-text.disabled {
+    color: #fca5a5;
+    background: rgba(239, 68, 68, 0.14);
+    border: 1px solid rgba(239, 68, 68, 0.24);
+}
+
+@media (max-width: 480px) {
+    #orion-wrap {
+        top: 6px;
+        right: 6px;
+        width: calc(100vw - 12px);
+        max-height: 96vh;
+        padding: 14px;
+        border-radius: 18px;
+    }
+
+    .orion-title {
+        font-size: 19px;
+    }
+
+    .orion-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .orion-btn {
+        padding: 12px 10px;
+        font-size: 12px;
+    }
+}
         `;
         document.head.appendChild(s);
         
@@ -550,7 +667,7 @@ ${statusHeader}
         d.innerHTML = `
             <div class="orion-header">
                 <div class="orion-title">
-                    <span>⚡</span> ORION v1 <span>⚡</span>
+                    <span>⚡</span> ORION v2 <span>⚡</span>
                 </div>
                 <div class="orion-badge">PREMIUM EDITION</div>
             </div>
@@ -572,7 +689,7 @@ ${statusHeader}
                     </div>
                     <div class="orion-input-group">
                         <label>BASE BET</label>
-                        <input id="p-minbet" class="orion-input" value="0.001" step="any" placeholder="0.001">
+                        <input id="p-minbet" class="orion-input" value="0.01" step="any" placeholder="0.01">
                     </div>
                     <div class="orion-input-group">
                         <label>DIVISOR</label>
@@ -604,11 +721,11 @@ ${statusHeader}
                 <div class="orion-grid">
                     <div class="orion-input-group">
                         <label>CHANCE %</label>
-                        <input id="p-dice-chance" class="orion-input" value="98" step="0.1" placeholder="98">
+                        <input id="p-dice-chance" class="orion-input" value="99" step="0.1" placeholder="99">
                     </div>
                     <div class="orion-input-group">
                         <label>CYCLES</label>
-                        <input id="p-dice-cycles" class="orion-input" value="2" placeholder="2">
+                        <input id="p-dice-cycles" class="orion-input" value="1" placeholder="1">
                     </div>
                 </div>
             </div>
@@ -626,11 +743,11 @@ ${statusHeader}
                 <div class="orion-grid">
                     <div class="orion-input-group">
                         <label>MULTIPLIER</label>
-                        <input id="p-recovery-mult" class="orion-input" value="1.0001" step="0.0001">
+                        <input id="p-recovery-mult" class="orion-input" value="1.65" step="0.65">
                     </div>
                     <div class="orion-input-group">
                         <label>MAX BET (BAL%)</label>
-                        <input id="p-recovery-bet-mult" class="orion-input" value="0.25" step="0.01">
+                        <input id="p-recovery-bet-mult" class="orion-input" value="0.5" step="0.01">
                     </div>
                 </div>
                 
