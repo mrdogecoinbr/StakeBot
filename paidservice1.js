@@ -256,7 +256,7 @@ ${statusHeader}
         
         const s = document.createElement("style");
         s.innerHTML = `
-            #orion-wrap {
+           #orion-wrap {
     position: fixed;
     top: 14px;
     right: 14px;
@@ -389,7 +389,8 @@ ${statusHeader}
     letter-spacing: 0.4px;
 }
 
-.orion-input {
+.orion-input,
+select.orion-input {
     width: 100%;
     box-sizing: border-box;
     padding: 11px 12px;
@@ -411,18 +412,50 @@ ${statusHeader}
     color: #6b8aa0;
 }
 
-.orion-input:hover {
+.orion-input:hover,
+select.orion-input:hover {
     border-color: rgba(0, 200, 255, 0.28);
     background: linear-gradient(180deg, #112534 0%, #0d1f2c 100%);
 }
 
-.orion-input:focus {
+.orion-input:focus,
+select.orion-input:focus {
     border-color: #00eaff;
     background: linear-gradient(180deg, #132838 0%, #102330 100%);
     box-shadow:
         0 0 0 3px rgba(0, 234, 255, 0.12),
         0 10px 20px rgba(0, 180, 255, 0.08);
     transform: translateY(-1px);
+}
+
+select.orion-input {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 38px;
+    background-image:
+        linear-gradient(180deg, #0f212e 0%, #0b1c28 100%),
+        linear-gradient(45deg, transparent 50%, #7dd3fc 50%),
+        linear-gradient(135deg, #7dd3fc 50%, transparent 50%);
+    background-position:
+        0 0,
+        calc(100% - 18px) calc(50% - 3px),
+        calc(100% - 12px) calc(50% - 3px);
+    background-size:
+        100% 100%,
+        6px 6px,
+        6px 6px;
+    background-repeat: no-repeat;
+}
+
+select.orion-input option {
+    background: #0f212e;
+    color: #dceaf5;
+}
+
+select.orion-input option:checked {
+    background: #1475e1;
+    color: #ffffff;
 }
 
 .orion-checkbox {
@@ -614,6 +647,14 @@ ${statusHeader}
     letter-spacing: 0.3px;
 }
 
+.orion-info-box code {
+    color: #b8ecff;
+    background: rgba(15, 33, 46, 0.75);
+    padding: 1px 5px;
+    border-radius: 6px;
+    font-size: 10px;
+}
+
 .recovery-status-text {
     display: inline-flex;
     align-items: center;
@@ -754,20 +795,20 @@ ${statusHeader}
                     </div>
                 </div>
                 
-                <div class="orion-info-box" id="recovery-explanation">
-                    <strong>🔍 RECOVERY MECHANISM</strong>
-                    • <b>Disabled</b>: Recovery dimatikan<br>
-                    • <b>Standby</b>: Recovery aktif, menunggu loss<br>
-                    • <b>Active</b>: Loss terdeteksi, mengejar profit<br><br>
-                    
-                    <b>Cara kerja:</b><br>
-                    1. Saat profit negatif, hitung target bet:<br>
-                       <code>target = |loss| / (multiplier - 1)</code><br>
-                    2. Contoh: loss 0.001, mult 1.0001<br>
-                       <code>target = 0.001 / 0.0001 = 10 DOGE</code><br>
-                    3. Bet dibatasi maksimal <span id="max-recovery-example">25%</span> dari balance<br>
-                    4. Ulangi sampai profit kembali positif
-                </div>
+<div class="orion-info-box" id="recovery-explanation">
+    <strong>🔎 RECOVERY MECHANISM</strong>
+    • <b>Disabled</b>: Recovery is turned off<br>
+    • <b>Standby</b>: Recovery is enabled, waiting for a loss<br>
+    • <b>Active</b>: Loss detected, chasing profit<br><br>
+
+    <b>How it works:</b><br>
+    1. When profit is negative, calculate the target bet:<br>
+       <code>target = |loss| / (multiplier - 1)</code><br>
+    2. Example: loss 0.001, mult 1.0001<br>
+       <code>target = 0.001 / 0.0001 = 10 DOGE</code><br>
+    3. Bet is capped at a maximum of <span id="max-recovery-example">25%</span> of balance<br>
+    4. Repeat until profit becomes positive again
+</div>
             </div>
             
             <div class="orion-stats">
