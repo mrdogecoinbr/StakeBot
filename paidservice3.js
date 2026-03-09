@@ -151,11 +151,11 @@ ${statusHeader}
         const baseBet = parseFloat(document.getElementById("p-minbet").value) || 0;
         const div = parseFloat(document.getElementById("p-div").value) || 2000;
         const limboPayout = parseFloat(document.getElementById("p-limbo-payout").value) || 1.0001;
-        const diceChance = parseFloat(document.getElementById("p-dice-chance").value) || 99;
+        const diceChance = parseFloat(document.getElementById("p-dice-chance").value) || 98;
         const limboCycles = parseInt(document.getElementById("p-limbo-cycles").value) || 3;
-        const diceCycles = parseInt(document.getElementById("p-dice-cycles").value) || 1;
-        const recoveryMultiplier = parseFloat(document.getElementById("p-recovery-mult").value) || 1.65;
-        const recoveryBetMultiplier = parseFloat(document.getElementById("p-recovery-bet-mult").value) || 0.5;
+        const diceCycles = parseInt(document.getElementById("p-dice-cycles").value) || 2;
+        const recoveryMultiplier = parseFloat(document.getElementById("p-recovery-mult").value) || 1.0001;
+        const recoveryBetMultiplier = parseFloat(document.getElementById("p-recovery-bet-mult").value) || 0.25;
         const useRecovery = document.getElementById("p-use-recovery").checked;
         
         // Update recovery status berdasarkan kondisi
@@ -256,7 +256,7 @@ ${statusHeader}
         
         const s = document.createElement("style");
         s.innerHTML = `
-           .orion-input {
+  .orion-input {
     width: 100%;
     box-sizing: border-box;
     padding: 11px 12px;
@@ -386,7 +386,7 @@ ${statusHeader}
                     </div>
                     <div class="orion-input-group">
                         <label>BASE BET</label>
-                        <input id="p-minbet" class="orion-input" value="0.01" step="any" placeholder="0.01">
+                        <input id="p-minbet" class="orion-input" value="0.001" step="any" placeholder="0.001">
                     </div>
                     <div class="orion-input-group">
                         <label>DIVISOR</label>
