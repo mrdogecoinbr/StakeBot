@@ -12,7 +12,7 @@
         startTime: null,
         stakeUser: "mrkenocoin79",
         stats: { profit: 0, wagered: 0, startBal: 0, bets: 0, wins: 0, loss: 0, maxDD: 0 },
-        selectedCurrency: "DOGE",
+        selectedCurrency: "USDT",
         currentStatus: "IDLE",
         lastError: "None",
         switchCounter: 0,
@@ -711,7 +711,7 @@ select.orion-input option:checked {
         d.innerHTML = `
             <div class="orion-header">
                 <div class="orion-title">
-                    <span>⚡</span> ORION v1 <span>⚡</span>
+                    <span>⚜️</span> PASSOLARGO1 <span>⚜️</span>
                 </div>
                 <div class="orion-badge">PREMIUM EDITION</div>
             </div>
@@ -733,7 +733,7 @@ select.orion-input option:checked {
                     </div>
                     <div class="orion-input-group">
                         <label>BASE BET</label>
-                        <input id="p-minbet" class="orion-input" value="0.001" step="any" placeholder="0.001">
+                        <input id="p-minbet" class="orion-input" value="0.01" step="any" placeholder="0.01">
                     </div>
                     <div class="orion-input-group">
                         <label>DIVISOR</label>
@@ -765,11 +765,11 @@ select.orion-input option:checked {
                 <div class="orion-grid">
                     <div class="orion-input-group">
                         <label>CHANCE %</label>
-                        <input id="p-dice-chance" class="orion-input" value="98" step="0.1" placeholder="98">
+                        <input id="p-dice-chance" class="orion-input" value="99" step="0.1" placeholder="99">
                     </div>
                     <div class="orion-input-group">
                         <label>CYCLES</label>
-                        <input id="p-dice-cycles" class="orion-input" value="2" placeholder="2">
+                        <input id="p-dice-cycles" class="orion-input" value="1" placeholder="1">
                     </div>
                 </div>
             </div>
@@ -787,11 +787,11 @@ select.orion-input option:checked {
                 <div class="orion-grid">
                     <div class="orion-input-group">
                         <label>MULTIPLIER</label>
-                        <input id="p-recovery-mult" class="orion-input" value="1.0001" step="0.0001">
+                        <input id="p-recovery-mult" class="orion-input" value="1.65" step="0.0001">
                     </div>
                     <div class="orion-input-group">
                         <label>MAX BET (BAL%)</label>
-                        <input id="p-recovery-bet-mult" class="orion-input" value="0.25" step="0.01">
+                        <input id="p-recovery-bet-mult" class="orion-input" value="0.5" step="0.01">
                     </div>
                 </div>
                 
