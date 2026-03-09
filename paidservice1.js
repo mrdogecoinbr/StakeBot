@@ -257,291 +257,411 @@ ${statusHeader}
         const s = document.createElement("style");
         s.innerHTML = `
             #orion-wrap {
-                position: fixed;
-                top: 10px;
-                right: 10px;
-                width: min(340px, calc(100vw - 20px));
-                background: linear-gradient(165deg, #0B1120 0%, #0F1A2F 100%);
-                color: #E2E8F0;
-                padding: 16px;
-                z-index: 99999;
-                border-radius: 20px;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-                border: 1px solid rgba(56, 189, 248, 0.15);
-                box-shadow: 0 20px 40px -12px rgba(0,0,0,0.8), 0 0 0 1px rgba(56, 189, 248, 0.1) inset;
-                backdrop-filter: blur(8px);
-                font-size: 13px;
-                max-height: 95vh;
-                overflow-y: auto;
-                scrollbar-width: thin;
-                scrollbar-color: #1E293B #0F172A;
-            }
-            #orion-wrap::-webkit-scrollbar {
-                width: 4px;
-            }
-            #orion-wrap::-webkit-scrollbar-track {
-                background: #0F172A;
-            }
-            #orion-wrap::-webkit-scrollbar-thumb {
-                background: #1E293B;
-                border-radius: 4px;
-            }
-            .orion-header {
-                text-align: center;
-                margin-bottom: 16px;
-                position: relative;
-            }
-            .orion-title {
-                font-weight: 700;
-                font-size: 18px;
-                background: linear-gradient(135deg, #38BDF8, #818CF8);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                letter-spacing: 0.5px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 6px;
-            }
-            .orion-badge {
-                background: rgba(56, 189, 248, 0.15);
-                border: 1px solid rgba(56, 189, 248, 0.3);
-                border-radius: 30px;
-                padding: 2px 10px;
-                font-size: 9px;
-                color: #38BDF8;
-                display: inline-block;
-                margin-top: 4px;
-            }
-            .orion-user {
-                font-size: 11px;
-                color: #94A3B8;
-                background: rgba(15, 23, 42, 0.6);
-                padding: 6px 12px;
-                border-radius: 30px;
-                border: 1px solid #1E293B;
-                margin: 8px 0 4px;
-                word-break: break-word;
-            }
-            .orion-section {
-                background: rgba(2, 6, 23, 0.6);
-                border-radius: 16px;
-                padding: 12px;
-                margin-bottom: 12px;
-                border: 1px solid #1E293B;
-                backdrop-filter: blur(4px);
-            }
-            .orion-section-title {
-                font-size: 11px;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                color: #38BDF8;
-                margin-bottom: 12px;
-                display: flex;
-                align-items: center;
-                gap: 6px;
-            }
-            .orion-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
-            }
-            .orion-input-group {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-            }
-            .orion-input-group label {
-                font-size: 9px;
-                font-weight: 500;
-                color: #94A3B8;
-                text-transform: uppercase;
-                letter-spacing: 0.3px;
-            }
-            .orion-input {
-                width: 100%;
-                background: #030712;
-                border: 1px solid #1E293B;
-                color: #F1F5F9;
-                padding: 8px 10px;
-                border-radius: 10px;
-                font-size: 12px;
-                box-sizing: border-box;
-                transition: all 0.15s;
-                font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
-            }
-            .orion-input:focus {
-                outline: none;
-                border-color: #38BDF8;
-                box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
-            }
-            .orion-checkbox {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                margin: 10px 0;
-                padding: 4px 0;
-            }
-            .orion-checkbox input {
-                width: 16px;
-                height: 16px;
-                accent-color: #38BDF8;
-                margin: 0;
-            }
-            .orion-checkbox label {
-                font-size: 12px;
-                color: #CBD5E1;
-            }
-            .orion-stats {
-                background: #030712;
-                border-radius: 16px;
-                padding: 14px;
-                border: 1px solid #1E293B;
-                margin-bottom: 12px;
-            }
-            .orion-stat-row {
-                display: flex;
-                justify-content: space-between;
-                padding: 6px 0;
-                border-bottom: 1px solid rgba(30, 41, 59, 0.5);
-            }
-            .orion-stat-row:last-child {
-                border-bottom: none;
-            }
-            .orion-stat-label {
-                color: #94A3B8;
-                font-weight: 400;
-            }
-            .orion-stat-value {
-                font-weight: 600;
-                color: #F1F5F9;
-                font-family: 'SF Mono', Monaco, monospace;
-            }
-            .orion-stat-value.positive {
-                color: #4ADE80;
-            }
-            .orion-stat-value.negative {
-                color: #F87171;
-            }
-            .orion-buttons {
-                display: flex;
-                gap: 8px;
-                margin-top: 8px;
-            }
-            .orion-btn {
-                flex: 1;
-                padding: 12px;
-                border: none;
-                border-radius: 30px;
-                font-weight: 600;
-                font-size: 13px;
-                cursor: pointer;
-                transition: all 0.2s;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-            .orion-btn-start {
-                background: linear-gradient(135deg, #38BDF8, #818CF8);
-                color: #030712;
-                box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
-            }
-            .orion-btn-start:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 6px 16px rgba(56, 189, 248, 0.4);
-            }
-            .orion-btn-stop {
-                background: rgba(239, 68, 68, 0.1);
-                border: 1px solid rgba(239, 68, 68, 0.3);
-                color: #FCA5A5;
-            }
-            .orion-btn-stop:hover {
-                background: rgba(239, 68, 68, 0.2);
-                border-color: #EF4444;
-            }
-            .orion-log {
-                margin-top: 8px;
-                padding: 8px 12px;
-                background: #030712;
-                border-radius: 12px;
-                font-size: 10px;
-                color: #FBBF24;
-                border: 1px solid #1E293B;
-                word-break: break-word;
-            }
-            .orion-game-badge {
-                display: inline-block;
-                background: rgba(56, 189, 248, 0.2);
-                border-radius: 20px;
-                padding: 2px 10px;
-                font-size: 9px;
-                color: #38BDF8;
-                margin-left: 8px;
-            }
-            .recovery-badge {
-                display: inline-block;
-                padding: 2px 8px;
-                border-radius: 12px;
-                font-size: 9px;
-                font-weight: 600;
-                margin-left: 6px;
-            }
-            .recovery-badge.active {
-                background: rgba(239, 68, 68, 0.2);
-                color: #FCA5A5;
-                border: 1px solid rgba(239, 68, 68, 0.3);
-            }
-            .recovery-badge.standby {
-                background: rgba(234, 179, 8, 0.2);
-                color: #FCD34D;
-                border: 1px solid rgba(234, 179, 8, 0.3);
-            }
-            .recovery-badge.disabled {
-                background: rgba(100, 116, 139, 0.2);
-                color: #94A3B8;
-                border: 1px solid rgba(100, 116, 139, 0.3);
-            }
-            .orion-info-box {
-                background: rgba(56, 189, 248, 0.1);
-                border-left: 3px solid #38BDF8;
-                padding: 10px;
-                border-radius: 8px;
-                font-size: 11px;
-                color: #CBD5E1;
-                margin-top: 12px;
-                line-height: 1.5;
-            }
-            .orion-info-box strong {
-                color: #38BDF8;
-                display: block;
-                margin-bottom: 4px;
-            }
-            .recovery-status-text {
-                font-size: 10px;
-                margin-left: 24px;
-                margin-top: 4px;
-                padding: 4px 8px;
-                border-radius: 12px;
-                display: inline-block;
-            }
-            .recovery-status-text.enabled {
-                background: rgba(34, 197, 94, 0.2);
-                color: #4ADE80;
-                border: 1px solid rgba(34, 197, 94, 0.3);
-            }
-            .recovery-status-text.disabled {
-                background: rgba(239, 68, 68, 0.2);
-                color: #F87171;
-                border: 1px solid rgba(239, 68, 68, 0.3);
-            }
-            @media (max-width: 480px) {
-                #orion-wrap {
-                    top: 5px;
-                    right: 5px;
-                    width: calc(100vw - 10px);
-                    padding: 12px;
-                }
-            }
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    width: min(360px, calc(100vw - 20px));
+    max-height: 94vh;
+    overflow-y: auto;
+    z-index: 99999;
+    padding: 18px;
+    border-radius: 24px;
+    color: #eaf2ff;
+    font-size: 13px;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background:
+        radial-gradient(circle at top right, rgba(0, 234, 255, 0.08), transparent 28%),
+        radial-gradient(circle at top left, rgba(20, 117, 225, 0.10), transparent 26%),
+        linear-gradient(180deg, rgba(15, 33, 46, 0.97) 0%, rgba(11, 28, 40, 0.98) 100%);
+    border: 1px solid rgba(47, 117, 143, 0.22);
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 0 0 1px rgba(0, 234, 255, 0.03);
+    backdrop-filter: blur(16px);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(90, 110, 145, 0.65) transparent;
+}
+
+#orion-wrap::-webkit-scrollbar {
+    width: 6px;
+}
+
+#orion-wrap::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#orion-wrap::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(71, 85, 105, 0.9), rgba(30, 41, 59, 0.95));
+    border-radius: 999px;
+}
+
+.orion-header {
+    text-align: center;
+    margin-bottom: 18px;
+    position: relative;
+}
+
+.orion-title {
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: 0.4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #ffffff 0%, #7fd4ff 45%, #2dd4ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 24px rgba(96, 165, 250, 0.15);
+}
+
+.orion-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #7dd3fc;
+    background: rgba(15, 23, 42, 0.72);
+    border: 1px solid rgba(56, 189, 248, 0.26);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.orion-user {
+    margin: 10px 0 6px;
+    padding: 10px 14px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(16, 37, 52, 0.94), rgba(11, 28, 40, 0.98));
+    border: 1px solid rgba(47, 117, 143, 0.24);
+    color: #9fb4d1;
+    font-size: 12px;
+    font-weight: 600;
+    word-break: break-word;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.orion-section {
+    margin-bottom: 14px;
+    padding: 14px;
+    border-radius: 20px;
+    background: linear-gradient(180deg, rgba(17, 37, 52, 0.92) 0%, rgba(11, 28, 40, 0.96) 100%);
+    border: 1px solid rgba(47, 117, 143, 0.24);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.03),
+        0 10px 24px rgba(0,0,0,0.18);
+    backdrop-filter: blur(6px);
+}
+
+.orion-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    color: #38bdf8;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+}
+
+.orion-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.orion-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.orion-input-group label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #8fb1c9;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.orion-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(47, 117, 143, 0.38);
+    outline: none;
+    background: linear-gradient(180deg, #0f212e 0%, #0b1c28 100%);
+    color: #dceaf5;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    transition: all 0.18s ease;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.02),
+        0 0 0 1px rgba(255,255,255,0.01);
+}
+
+.orion-input::placeholder {
+    color: #6b8aa0;
+}
+
+.orion-input:hover {
+    border-color: rgba(0, 200, 255, 0.28);
+    background: linear-gradient(180deg, #112534 0%, #0d1f2c 100%);
+}
+
+.orion-input:focus {
+    border-color: #00eaff;
+    background: linear-gradient(180deg, #132838 0%, #102330 100%);
+    box-shadow:
+        0 0 0 3px rgba(0, 234, 255, 0.12),
+        0 10px 20px rgba(0, 180, 255, 0.08);
+    transform: translateY(-1px);
+}
+
+.orion-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0 12px;
+    padding: 4px 0;
+}
+
+.orion-checkbox input {
+    width: 17px;
+    height: 17px;
+    margin: 0;
+    accent-color: #38bdf8;
+}
+
+.orion-checkbox label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #d3deee;
+}
+
+.orion-stats {
+    margin-bottom: 14px;
+    padding: 16px;
+    border-radius: 20px;
+    background: linear-gradient(180deg, #112534 0%, #0c1f2c 100%);
+    border: 1px solid rgba(47, 117, 143, 0.22);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.03),
+        0 8px 22px rgba(0,0,0,0.22);
+}
+
+.orion-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.42);
+}
+
+.orion-stat-row:last-child {
+    border-bottom: none;
+}
+
+.orion-stat-label {
+    color: #8ea3c0;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+
+.orion-stat-value {
+    color: #f8fbff;
+    font-weight: 700;
+    font-family: "SF Mono", Monaco, monospace;
+}
+
+.orion-stat-value.positive {
+    color: #4ade80;
+}
+
+.orion-stat-value.negative {
+    color: #fb7185;
+}
+
+.orion-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.orion-btn {
+    flex: 1;
+    border: none;
+    border-radius: 16px;
+    padding: 13px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: all 0.18s ease;
+}
+
+.orion-btn-start {
+    color: #ffffff;
+    background: linear-gradient(180deg, #1475e1 0%, #0f69d0 100%);
+    box-shadow:
+        0 10px 24px rgba(20, 117, 225, 0.24),
+        inset 0 1px 0 rgba(255,255,255,0.16);
+}
+
+.orion-btn-start:hover {
+    transform: translateY(-1px);
+    box-shadow:
+        0 14px 28px rgba(20, 117, 225, 0.3),
+        inset 0 1px 0 rgba(255,255,255,0.16);
+}
+
+.orion-btn-stop {
+    color: #ffd2d2;
+    background: linear-gradient(180deg, rgba(97, 26, 26, 0.82), rgba(64, 15, 15, 0.95));
+    border: 1px solid rgba(239, 68, 68, 0.26);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.orion-btn-stop:hover {
+    transform: translateY(-1px);
+    background: linear-gradient(180deg, rgba(110, 28, 28, 0.9), rgba(70, 16, 16, 0.98));
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+.orion-log {
+    margin-top: 10px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #112534 0%, #0b1d2a 100%);
+    border: 1px solid rgba(47, 117, 143, 0.22);
+    color: #ffd166;
+    font-size: 11px;
+    line-height: 1.45;
+    word-break: break-word;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.orion-game-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #7dd3fc;
+    background: rgba(56, 189, 248, 0.14);
+    border: 1px solid rgba(56, 189, 248, 0.24);
+}
+
+.recovery-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+.recovery-badge.active {
+    color: #fecaca;
+    background: rgba(239, 68, 68, 0.14);
+    border: 1px solid rgba(239, 68, 68, 0.28);
+}
+
+.recovery-badge.standby {
+    color: #fde68a;
+    background: rgba(234, 179, 8, 0.14);
+    border: 1px solid rgba(234, 179, 8, 0.26);
+}
+
+.recovery-badge.disabled {
+    color: #94a3b8;
+    background: rgba(100, 116, 139, 0.14);
+    border: 1px solid rgba(100, 116, 139, 0.22);
+}
+
+.orion-info-box {
+    margin-top: 12px;
+    padding: 12px 13px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(8, 30, 45, 0.6), rgba(5, 16, 28, 0.75));
+    border: 1px solid rgba(56, 189, 248, 0.18);
+    color: #d7e6f7;
+    font-size: 11px;
+    line-height: 1.55;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.orion-info-box strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #7dd3fc;
+    font-size: 11px;
+    letter-spacing: 0.3px;
+}
+
+.recovery-status-text {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 24px;
+    margin-top: 5px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.recovery-status-text.enabled {
+    color: #86efac;
+    background: rgba(34, 197, 94, 0.14);
+    border: 1px solid rgba(34, 197, 94, 0.24);
+}
+
+.recovery-status-text.disabled {
+    color: #fca5a5;
+    background: rgba(239, 68, 68, 0.14);
+    border: 1px solid rgba(239, 68, 68, 0.24);
+}
+
+@media (max-width: 480px) {
+    #orion-wrap {
+        top: 6px;
+        right: 6px;
+        width: calc(100vw - 12px);
+        max-height: 96vh;
+        padding: 14px;
+        border-radius: 18px;
+    }
+
+    .orion-title {
+        font-size: 19px;
+    }
+
+    .orion-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .orion-btn {
+        padding: 12px 10px;
+        font-size: 12px;
+    }
+}
         `;
         document.head.appendChild(s);
         
