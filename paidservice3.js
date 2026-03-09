@@ -151,11 +151,11 @@ ${statusHeader}
         const baseBet = parseFloat(document.getElementById("p-minbet").value) || 0;
         const div = parseFloat(document.getElementById("p-div").value) || 2000;
         const limboPayout = parseFloat(document.getElementById("p-limbo-payout").value) || 1.0001;
-        const diceChance = parseFloat(document.getElementById("p-dice-chance").value) || 98;
+        const diceChance = parseFloat(document.getElementById("p-dice-chance").value) || 99;
         const limboCycles = parseInt(document.getElementById("p-limbo-cycles").value) || 3;
-        const diceCycles = parseInt(document.getElementById("p-dice-cycles").value) || 2;
-        const recoveryMultiplier = parseFloat(document.getElementById("p-recovery-mult").value) || 1.0001;
-        const recoveryBetMultiplier = parseFloat(document.getElementById("p-recovery-bet-mult").value) || 0.25;
+        const diceCycles = parseInt(document.getElementById("p-dice-cycles").value) || 1;
+        const recoveryMultiplier = parseFloat(document.getElementById("p-recovery-mult").value) || 1.65;
+        const recoveryBetMultiplier = parseFloat(document.getElementById("p-recovery-bet-mult").value) || 0.5;
         const useRecovery = document.getElementById("p-use-recovery").checked;
         
         // Update recovery status berdasarkan kondisi
@@ -256,408 +256,105 @@ ${statusHeader}
         
         const s = document.createElement("style");
         s.innerHTML = `
-            #orion-wrap {
-    position: fixed;
-    top: 14px;
-    right: 14px;
-    width: min(360px, calc(100vw - 20px));
-    max-height: 94vh;
-    overflow-y: auto;
-    z-index: 99999;
-    padding: 18px;
-    border-radius: 24px;
-    color: #eaf2ff;
-    font-size: 13px;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background:
-        radial-gradient(circle at top right, rgba(56, 189, 248, 0.14), transparent 28%),
-        radial-gradient(circle at top left, rgba(129, 140, 248, 0.14), transparent 26%),
-        linear-gradient(180deg, rgba(8, 15, 31, 0.96) 0%, rgba(5, 10, 22, 0.96) 100%);
-    border: 1px solid rgba(120, 160, 255, 0.16);
-    box-shadow:
-        0 24px 60px rgba(0, 0, 0, 0.55),
-        inset 0 1px 0 rgba(255, 255, 255, 0.05),
-        0 0 0 1px rgba(56, 189, 248, 0.04);
-    backdrop-filter: blur(16px);
-    scrollbar-width: thin;
-    scrollbar-color: rgba(90, 110, 145, 0.65) transparent;
-}
-
-#orion-wrap::-webkit-scrollbar {
-    width: 6px;
-}
-
-#orion-wrap::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-#orion-wrap::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, rgba(71, 85, 105, 0.9), rgba(30, 41, 59, 0.95));
-    border-radius: 999px;
-}
-
-.orion-header {
-    text-align: center;
-    margin-bottom: 18px;
-    position: relative;
-}
-
-.orion-title {
-    font-weight: 800;
-    font-size: 22px;
-    letter-spacing: 0.4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    background: linear-gradient(135deg, #7dd3fc 0%, #60a5fa 45%, #a78bfa 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 24px rgba(96, 165, 250, 0.15);
-}
-
-.orion-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 8px;
-    padding: 6px 14px;
-    border-radius: 999px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    color: #7dd3fc;
-    background: rgba(15, 23, 42, 0.72);
-    border: 1px solid rgba(56, 189, 248, 0.26);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
-}
-
-.orion-user {
-    margin: 10px 0 6px;
-    padding: 10px 14px;
-    border-radius: 16px;
-    background: linear-gradient(180deg, rgba(10, 18, 35, 0.9), rgba(6, 12, 24, 0.95));
-    border: 1px solid rgba(71, 85, 105, 0.3);
-    color: #9fb4d1;
-    font-size: 12px;
-    font-weight: 600;
-    word-break: break-word;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
-}
-
-.orion-section {
-    margin-bottom: 14px;
-    padding: 14px;
-    border-radius: 20px;
-    background:
-        linear-gradient(180deg, rgba(7, 15, 30, 0.92) 0%, rgba(4, 10, 22, 0.92) 100%);
-    border: 1px solid rgba(71, 85, 105, 0.22);
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.03),
-        0 10px 24px rgba(0,0,0,0.18);
-}
-
-.orion-section-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-    color: #38bdf8;
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.7px;
-}
-
-.orion-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.orion-input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.orion-input-group label {
-    font-size: 10px;
-    font-weight: 700;
-    color: #93a9c8;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-}
-
-.orion-input {
+           .orion-input {
     width: 100%;
     box-sizing: border-box;
     padding: 11px 12px;
     border-radius: 14px;
-    border: 1px solid rgba(71, 85, 105, 0.32);
+    border: 1px solid rgba(47, 117, 143, 0.38);
     outline: none;
-    background:
-        linear-gradient(180deg, rgba(2, 6, 16, 0.94), rgba(4, 9, 18, 0.98));
-    color: #f8fbff;
+    background: linear-gradient(180deg, #0f212e 0%, #0b1c28 100%);
+    color: #dceaf5;
     font-size: 13px;
     font-weight: 600;
     font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
     transition: all 0.18s ease;
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.02),
-        0 0 0 1px rgba(255,255,255,0.015);
+        0 0 0 1px rgba(255,255,255,0.01);
+}
+
+.orion-input::placeholder {
+    color: #6b8aa0;
 }
 
 .orion-input:hover {
-    border-color: rgba(96, 165, 250, 0.28);
+    border-color: rgba(0, 200, 255, 0.28);
+    background: linear-gradient(180deg, #112534 0%, #0d1f2c 100%);
 }
 
 .orion-input:focus {
-    border-color: rgba(56, 189, 248, 0.7);
+    border-color: #00eaff;
+    background: linear-gradient(180deg, #132838 0%, #102330 100%);
     box-shadow:
-        0 0 0 3px rgba(56, 189, 248, 0.14),
-        0 8px 20px rgba(56, 189, 248, 0.08);
+        0 0 0 3px rgba(0, 234, 255, 0.12),
+        0 10px 20px rgba(0, 180, 255, 0.08);
     transform: translateY(-1px);
 }
 
-.orion-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 10px 0 12px;
-    padding: 4px 0;
+.orion-input-group label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #8fb1c9;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
 }
 
-.orion-checkbox input {
-    width: 17px;
-    height: 17px;
-    margin: 0;
-    accent-color: #38bdf8;
-}
-
-.orion-checkbox label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #d3deee;
+.orion-section {
+    margin-bottom: 14px;
+    padding: 14px;
+    border-radius: 20px;
+    background: linear-gradient(180deg, rgba(17, 37, 52, 0.92) 0%, rgba(11, 28, 40, 0.96) 100%);
+    border: 1px solid rgba(47, 117, 143, 0.24);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.03),
+        0 10px 24px rgba(0,0,0,0.18);
 }
 
 .orion-stats {
     margin-bottom: 14px;
     padding: 16px;
     border-radius: 20px;
-    background:
-        linear-gradient(180deg, rgba(3, 8, 20, 0.96) 0%, rgba(2, 6, 16, 0.98) 100%);
-    border: 1px solid rgba(71, 85, 105, 0.22);
+    background: linear-gradient(180deg, #112534 0%, #0c1f2c 100%);
+    border: 1px solid rgba(47, 117, 143, 0.22);
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.03),
         0 8px 22px rgba(0,0,0,0.22);
-}
-
-.orion-stat-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(51, 65, 85, 0.42);
-}
-
-.orion-stat-row:last-child {
-    border-bottom: none;
-}
-
-.orion-stat-label {
-    color: #8ea3c0;
-    font-weight: 600;
-    letter-spacing: 0.2px;
-}
-
-.orion-stat-value {
-    color: #f8fbff;
-    font-weight: 700;
-    font-family: "SF Mono", Monaco, monospace;
-}
-
-.orion-stat-value.positive {
-    color: #4ade80;
-}
-
-.orion-stat-value.negative {
-    color: #fb7185;
-}
-
-.orion-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.orion-btn {
-    flex: 1;
-    border: none;
-    border-radius: 16px;
-    padding: 13px 14px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    transition: all 0.18s ease;
-}
-
-.orion-btn-start {
-    color: #03111f;
-    background: linear-gradient(135deg, #38bdf8 0%, #60a5fa 50%, #818cf8 100%);
-    box-shadow:
-        0 10px 24px rgba(56, 189, 248, 0.22),
-        inset 0 1px 0 rgba(255,255,255,0.2);
-}
-
-.orion-btn-start:hover {
-    transform: translateY(-1px);
-    box-shadow:
-        0 14px 28px rgba(56, 189, 248, 0.28),
-        inset 0 1px 0 rgba(255,255,255,0.2);
-}
-
-.orion-btn-stop {
-    color: #fecaca;
-    background: linear-gradient(180deg, rgba(69, 10, 10, 0.7), rgba(38, 7, 7, 0.9));
-    border: 1px solid rgba(239, 68, 68, 0.26);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
-}
-
-.orion-btn-stop:hover {
-    transform: translateY(-1px);
-    background: linear-gradient(180deg, rgba(95, 15, 15, 0.72), rgba(52, 10, 10, 0.95));
-    border-color: rgba(239, 68, 68, 0.4);
 }
 
 .orion-log {
     margin-top: 10px;
     padding: 12px 14px;
     border-radius: 16px;
-    background:
-        linear-gradient(180deg, rgba(8, 12, 22, 0.95), rgba(5, 9, 18, 0.98));
-    border: 1px solid rgba(71, 85, 105, 0.22);
-    color: #facc15;
+    background: linear-gradient(180deg, #112534 0%, #0b1d2a 100%);
+    border: 1px solid rgba(47, 117, 143, 0.22);
+    color: #ffd166;
     font-size: 11px;
     line-height: 1.45;
     word-break: break-word;
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
 }
 
-.orion-game-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: 8px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 10px;
-    font-weight: 700;
-    color: #7dd3fc;
-    background: rgba(56, 189, 248, 0.14);
-    border: 1px solid rgba(56, 189, 248, 0.24);
+.orion-btn-start {
+    color: #ffffff;
+    background: linear-gradient(180deg, #1475e1 0%, #0f69d0 100%);
+    box-shadow:
+        0 10px 24px rgba(20, 117, 225, 0.24),
+        inset 0 1px 0 rgba(255,255,255,0.16);
 }
 
-.recovery-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: 8px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.3px;
+.orion-btn-start:hover {
+    transform: translateY(-1px);
+    box-shadow:
+        0 14px 28px rgba(20, 117, 225, 0.3),
+        inset 0 1px 0 rgba(255,255,255,0.16);
 }
 
-.recovery-badge.active {
-    color: #fecaca;
-    background: rgba(239, 68, 68, 0.14);
-    border: 1px solid rgba(239, 68, 68, 0.28);
-}
-
-.recovery-badge.standby {
-    color: #fde68a;
-    background: rgba(234, 179, 8, 0.14);
-    border: 1px solid rgba(234, 179, 8, 0.26);
-}
-
-.recovery-badge.disabled {
-    color: #94a3b8;
-    background: rgba(100, 116, 139, 0.14);
-    border: 1px solid rgba(100, 116, 139, 0.22);
-}
-
-.orion-info-box {
-    margin-top: 12px;
-    padding: 12px 13px;
-    border-radius: 14px;
-    background: linear-gradient(180deg, rgba(8, 30, 45, 0.6), rgba(5, 16, 28, 0.75));
-    border: 1px solid rgba(56, 189, 248, 0.18);
-    color: #d7e6f7;
-    font-size: 11px;
-    line-height: 1.55;
+.orion-btn-stop {
+    color: #ffd2d2;
+    background: linear-gradient(180deg, rgba(97, 26, 26, 0.82), rgba(64, 15, 15, 0.95));
+    border: 1px solid rgba(239, 68, 68, 0.26);
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
-}
-
-.orion-info-box strong {
-    display: block;
-    margin-bottom: 6px;
-    color: #7dd3fc;
-    font-size: 11px;
-    letter-spacing: 0.3px;
-}
-
-.recovery-status-text {
-    display: inline-flex;
-    align-items: center;
-    margin-left: 24px;
-    margin-top: 5px;
-    padding: 5px 10px;
-    border-radius: 999px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-}
-
-.recovery-status-text.enabled {
-    color: #86efac;
-    background: rgba(34, 197, 94, 0.14);
-    border: 1px solid rgba(34, 197, 94, 0.24);
-}
-
-.recovery-status-text.disabled {
-    color: #fca5a5;
-    background: rgba(239, 68, 68, 0.14);
-    border: 1px solid rgba(239, 68, 68, 0.24);
-}
-
-@media (max-width: 480px) {
-    #orion-wrap {
-        top: 6px;
-        right: 6px;
-        width: calc(100vw - 12px);
-        max-height: 96vh;
-        padding: 14px;
-        border-radius: 18px;
-    }
-
-    .orion-title {
-        font-size: 19px;
-    }
-
-    .orion-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-    }
-
-    .orion-btn {
-        padding: 12px 10px;
-        font-size: 12px;
-    }
 }
         `;
         document.head.appendChild(s);
