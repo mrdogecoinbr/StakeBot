@@ -6,13 +6,13 @@
         version: "Orion v1 Premium"
     };
 
-    const bot = {
+ const bot = {
         isRunning: false,
         token: null,
         startTime: null,
-        stakeUser: "mrkenocoin79",
+        stakeUser: "orionlogic",
         stats: { profit: 0, wagered: 0, startBal: 0, bets: 0, wins: 0, loss: 0, maxDD: 0 },
-        selectedCurrency: "USDT",
+        selectedCurrency: "DOGE",
         currentStatus: "IDLE",
         lastError: "None",
         switchCounter: 0,
@@ -263,40 +263,40 @@
             const elapsed = bot.startTime ? (new Date() - bot.startTime) / 1000 : 0;
             const timeStr = new Date(elapsed * 1000).toISOString().substr(11, 8);
             const speed = (bot.stats.bets / (elapsed || 1)).toFixed(2);
-            const profitColor = bot.stats.profit >= 0 ? '??' : '??';
+            const profitColor = bot.stats.profit >= 0 ? '🟢' : '🔴';
             const currentBalance = (bot.stats.startBal + bot.stats.profit).toFixed(8);
             
-            const recoveryIcon = bot.recoveryStatus === "ACTIVE" ? "??" : (bot.recoveryStatus === "STANDBY" ? "??" : "?");
+            const recoveryIcon = bot.recoveryStatus === "ACTIVE" ? "🔴" : (bot.recoveryStatus === "STANDBY" ? "🟡" : "⚫");
             
             let gameInfo = "";
             if (bot.recoveryMode) {
-                gameInfo = `?? *Recovery:* BACCARAT (${bot.recoverySide.toUpperCase()}) | Step ${bot.recoveryConsecutiveLosses+1}/${bot.recoverySteps[bot.recoveryConsecutiveLosses]}x | Trend: ${bot.recoveryTrendMode.toUpperCase()}`;
+                gameInfo = `🎮 *Recovery:* BACCARAT (${bot.recoverySide.toUpperCase()}) | Step ${bot.recoveryConsecutiveLosses+1}/${bot.recoverySteps[bot.recoveryConsecutiveLosses]}x | Trend: ${bot.recoveryTrendMode.toUpperCase()}`;
             } else {
-                gameInfo = `?? *Game:* ${bot.currentGame.toUpperCase()} | Switch: ${bot.switchCounter}/${bot.nextSwitchAt}`;
+                gameInfo = `🎮 *Game:* ${bot.currentGame.toUpperCase()} | Switch: ${bot.switchCounter}/${bot.nextSwitchAt}`;
             }
             
             const text = 
-`?? *ORION v1 PREMIUM* ??
+`🔷 *ORION v1 PREMIUM* 🔷
 ${statusHeader}
 
-?? *User:* \`${bot.stakeUser}\`
-?? *Asset:* \`${bot.selectedCurrency.toUpperCase()}\`
-?? *IDR Price:* \`Rp ${bot.idrPrice.toLocaleString()}\`
-?? *Status:* \`${bot.currentStatus}\`
-?? *Recovery:* ${recoveryIcon} \`${bot.recoveryStatus}\`
+👤 *User:* \`${bot.stakeUser}\`
+🪙 *Asset:* \`${bot.selectedCurrency.toUpperCase()}\`
+💵 *IDR Price:* \`Rp ${bot.idrPrice.toLocaleString()}\`
+⚙️ *Status:* \`${bot.currentStatus}\`
+🔄 *Recovery:* ${recoveryIcon} \`${bot.recoveryStatus}\`
 ${gameInfo}
 
-? *Uptime:* \`${timeStr}\`
-?? *Balance:* \`${currentBalance}\`
-?? *Profit:* ${profitColor} \`${bot.stats.profit.toFixed(8)}\`
-?? *Wagered:* \`${bot.stats.wagered.toFixed(8)}\`
-?? *Drawdown:* \`${bot.stats.maxDD.toFixed(8)}\`
+⏱ *Uptime:* \`${timeStr}\`
+💰 *Balance:* \`${currentBalance}\`
+📈 *Profit:* ${profitColor} \`${bot.stats.profit.toFixed(8)}\`
+📊 *Wagered:* \`${bot.stats.wagered.toFixed(8)}\`
+📉 *Drawdown:* \`${bot.stats.maxDD.toFixed(8)}\`
 
-?? *Bets:* \`${bot.stats.bets}\`
-?? *W/L:* \`${bot.stats.wins}/${bot.stats.loss}\`
-? *Speed:* \`${speed} b/s\`
+🎰 *Bets:* \`${bot.stats.bets}\`
+🏁 *W/L:* \`${bot.stats.wins}/${bot.stats.loss}\`
+⚡ *Speed:* \`${speed} b/s\`
 
-?? *Orion v1 Premium*`;
+🆔 *Orion v1 Premium*`;
 
             try {
                 fetch(`https://api.telegram.org/bot${CONFIG.tgToken}/sendMessage`, {
@@ -386,14 +386,14 @@ ${gameInfo}
                 
                 const priceEl = document.getElementById("st-idr-price");
                 if (priceEl) {
-                    priceEl.innerHTML = `?? 1 ${bot.selectedCurrency.toUpperCase()} = Rp ${price.toLocaleString('id-ID')}`;
+                    priceEl.innerHTML = `💰 1 ${bot.selectedCurrency.toUpperCase()} = Rp ${price.toLocaleString('id-ID')}`;
                     priceEl.style.color = "#FBBF24";
                 }
             } else {
                 // Tampilkan pesan error tapi tetap jalan
                 const priceEl = document.getElementById("st-idr-price");
                 if (priceEl) {
-                    priceEl.innerHTML = `?? Price: Using cached rate`;
+                    priceEl.innerHTML = `💰 Price: Using cached rate`;
                     priceEl.style.color = "#94A3B8";
                 }
             }
@@ -441,13 +441,13 @@ ${gameInfo}
             // Update status
             bot.currentStatus = `RECOVERY #${bot.recoveryAttempts}`;
             
-            console.log(`?? RECOVERY TRIGGERED! Loss: ${lossPct.toFixed(2)}% | Amount: ${bot.recoveryLossAmount.toFixed(8)}`);
+            console.log(`🔥 RECOVERY TRIGGERED! Loss: ${lossPct.toFixed(2)}% | Amount: ${bot.recoveryLossAmount.toFixed(8)}`);
             console.log(`Switching to BACCARAT until breakeven... Trend: ${trendMode}, Side: ${bot.recoverySide}`);
             
             const logEl = document.getElementById("st-log");
-            if (logEl) logEl.innerText = `?? RECOVERY #${bot.recoveryAttempts} | Loss: ${bot.recoveryLossAmount.toFixed(8)} | Playing BACCARAT (${trendMode})`;
+            if (logEl) logEl.innerText = `🔥 RECOVERY #${bot.recoveryAttempts} | Loss: ${bot.recoveryLossAmount.toFixed(8)} | Playing BACCARAT (${trendMode})`;
             
-            API.sendTg("?? *RECOVERY MODE ACTIVATED* ??\nSwitching to BACCARAT");
+            API.sendTg("🔥 *RECOVERY MODE ACTIVATED* 🔥\nSwitching to BACCARAT");
             
             return true;
         }
@@ -471,12 +471,12 @@ ${gameInfo}
             bot.currentGame = bot.originalGame;
             bot.currentStatus = "WAGERING";
             
-            console.log(`?? RECOVERY COMPLETE! Back to breakeven. Returning to ${bot.originalGame}...`);
+            console.log(`💰 RECOVERY COMPLETE! Back to breakeven. Returning to ${bot.originalGame}...`);
             
             const logEl = document.getElementById("st-log");
-            if (logEl) logEl.innerText = `?? RECOVERY COMPLETE - Back to ${bot.originalGame.toUpperCase()}`;
+            if (logEl) logEl.innerText = `💰 RECOVERY COMPLETE - Back to ${bot.originalGame.toUpperCase()}`;
             
-            API.sendTg("?? *RECOVERY COMPLETE* ??\nReturning to normal mode");
+            API.sendTg("💰 *RECOVERY COMPLETE* 💰\nReturning to normal mode");
             
             return true;
         }
@@ -487,12 +487,12 @@ ${gameInfo}
             bot.recoveryAttempts = 0;
             bot.currentGame = bot.originalGame;
             
-            console.log(`?? MAX RECOVERY ATTEMPTS (${maxAttempts}) REACHED. Returning to ${bot.originalGame}...`);
+            console.log(`⚠️ MAX RECOVERY ATTEMPTS (${maxAttempts}) REACHED. Returning to ${bot.originalGame}...`);
             
             const logEl = document.getElementById("st-log");
-            if (logEl) logEl.innerText = `?? MAX RECOVERY - Back to ${bot.originalGame.toUpperCase()}`;
+            if (logEl) logEl.innerText = `⚠️ MAX RECOVERY - Back to ${bot.originalGame.toUpperCase()}`;
             
-            API.sendTg("?? *MAX RECOVERY ATTEMPTS REACHED* ??\nReturning to normal mode");
+            API.sendTg("⚠️ *MAX RECOVERY ATTEMPTS REACHED* ⚠️\nReturning to normal mode");
             
             return true;
         }
@@ -572,7 +572,7 @@ ${gameInfo}
             if (!cards || cards.length === 0) return "-";
             return cards.map(c => {
                 const rank = c.rank || c;
-                const suit = c.suit ? (c.suit === 'H' ? '?' : c.suit === 'D' ? '?' : c.suit === 'C' ? '?' : '?') : '';
+                const suit = c.suit ? (c.suit === 'H' ? '♥' : c.suit === 'D' ? '♦' : c.suit === 'C' ? '♣' : '♠') : '';
                 return `${rank}${suit}`;
             }).join(' ');
         };
@@ -582,13 +582,13 @@ ${gameInfo}
         
         const winner = bot.baccaratCards.winner;
         if (winner === "player") {
-            winnerEl.innerText = "PLAYER WINS ??";
+            winnerEl.innerText = "PLAYER WINS 🏆";
             winnerEl.style.color = "#4ADE80";
         } else if (winner === "banker") {
-            winnerEl.innerText = "BANKER WINS ??";
+            winnerEl.innerText = "BANKER WINS 🏆";
             winnerEl.style.color = "#F87171";
         } else if (winner === "tie") {
-            winnerEl.innerText = "TIE ??";
+            winnerEl.innerText = "TIE 🤝";
             winnerEl.style.color = "#FBBF24";
         } else {
             winnerEl.innerText = "-";
@@ -1230,7 +1230,7 @@ ${gameInfo}
         d.innerHTML = `
             <div class="orion-header">
                 <div class="orion-title">
-                    <span>??</span> ORION v1 <span>??</span>
+                    <span>⚜️</span> ORION v1 <span>⚜️</span>
                 </div>
                 <div class="orion-badge">PREMIUM EDITION</div>
             </div>
@@ -1245,7 +1245,7 @@ ${gameInfo}
             
             <div class="orion-section">
                 <div class="orion-section-title">
-                    <span>??</span> SYSTEM CONFIG
+                    <span>⚙️</span> SYSTEM CONFIG
                 </div>
                 <div class="orion-grid">
                     <div style="grid-column: span 2">
@@ -1271,7 +1271,7 @@ ${gameInfo}
             
             <div class="orion-section">
                 <div class="orion-section-title">
-                    <span>??</span> LIMBO STRATEGY
+                    <span>🎲</span> LIMBO STRATEGY
                 </div>
                 <div class="orion-grid">
                     <div class="orion-input-group">
@@ -1287,7 +1287,7 @@ ${gameInfo}
             
             <div class="orion-section">
                 <div class="orion-section-title">
-                    <span>??</span> DICE STRATEGY
+                    <span>🎯</span> DICE STRATEGY
                 </div>
                 <div class="orion-grid">
                     <div class="orion-input-group">
@@ -1303,14 +1303,14 @@ ${gameInfo}
             
             <div class="orion-section">
                 <div class="orion-section-title">
-                    <span>??</span> BACCARAT RECOVERY MODE
+                    <span>🔄</span> BACCARAT RECOVERY MODE
                     <span id="recovery-status-badge" class="recovery-badge disabled">DISABLED</span>
                 </div>
                 <div class="orion-checkbox">
                     <input type="checkbox" id="p-use-recovery" checked>
                     <label>Enable Baccarat Recovery</label>
                 </div>
-                <div id="recovery-toggle-status" class="recovery-status-text enabled">? RECOVERY IS ENABLED</div>
+                <div id="recovery-toggle-status" class="recovery-status-text enabled">✓ RECOVERY IS ENABLED</div>
                 
                 <div class="orion-grid">
                     <div class="orion-input-group">
@@ -1436,10 +1436,10 @@ ${gameInfo}
             const statusEl = document.getElementById("recovery-toggle-status");
             if (enabled) {
                 statusEl.className = "recovery-status-text enabled";
-                statusEl.innerHTML = "? BACCARAT RECOVERY IS ENABLED";
+                statusEl.innerHTML = "✓ BACCARAT RECOVERY IS ENABLED";
             } else {
                 statusEl.className = "recovery-status-text disabled";
-                statusEl.innerHTML = "? BACCARAT RECOVERY IS DISABLED";
+                statusEl.innerHTML = "✗ BACCARAT RECOVERY IS DISABLED";
             }
         }
         
@@ -1492,12 +1492,12 @@ ${gameInfo}
                 
                 updateRecoveryUI();
                 
-                setTimeout(() => API.sendTg("?? *SYSTEM ENGAGED*"), 1000);
+                setTimeout(() => API.sendTg("🚀 *SYSTEM ENGAGED*"), 1000);
                 
                 if (reportInterval) clearInterval(reportInterval);
                 reportInterval = setInterval(() => {
                     if (bot.isRunning) {
-                        API.sendTg("?? *PERIODIC REPORT*");
+                        API.sendTg("📊 *PERIODIC REPORT*");
                     }
                 }, 180000);
                 
@@ -1512,7 +1512,7 @@ ${gameInfo}
                     clearInterval(reportInterval);
                     reportInterval = null;
                 }
-                API.sendTg("?? *SYSTEM HALTED*"); 
+                API.sendTg("🛑 *SYSTEM HALTED*"); 
             } 
         };
     }
@@ -1528,7 +1528,7 @@ ${gameInfo}
         
         let statusText = bot.currentStatus;
         if (bot.recoveryMode) {
-            statusText = `?? RECOVERY #${bot.recoveryAttempts} (${bot.recoverySide} | Step ${bot.recoveryConsecutiveLosses+1})`;
+            statusText = `🔥 RECOVERY #${bot.recoveryAttempts} (${bot.recoverySide} | Step ${bot.recoveryConsecutiveLosses+1})`;
         } else {
             statusText = `${bot.currentStatus} (${bot.currentGame})`;
         }
