@@ -1230,7 +1230,7 @@ ${gameInfo}
         d.innerHTML = `
             <div class="orion-header">
                 <div class="orion-title">
-                    <span>⚜️</span> ORION v1 <span>⚜️</span>
+                    <span>⚜️</span> PASSOLARGO BOT <span>⚜️</span>
                 </div>
                 <div class="orion-badge">PREMIUM EDITION</div>
             </div>
@@ -1264,7 +1264,7 @@ ${gameInfo}
                     </div>
                     <div class="orion-input-group">
                         <label>DIVIDER</label>
-                        <input id="p-div" class="orion-input" value="500" placeholder="0 = manual basebet">
+                        <input id="p-div" class="orion-input" value="600" placeholder="0 = manual basebet">
                     </div>
                 </div>
             </div>
@@ -1296,7 +1296,7 @@ ${gameInfo}
                     </div>
                     <div class="orion-input-group">
                         <label>CYCLES</label>
-                        <input id="p-dice-cycles" class="orion-input" value="101">
+                        <input id="p-dice-cycles" class="orion-input" value="100">
                     </div>
                 </div>
             </div>
@@ -1323,7 +1323,7 @@ ${gameInfo}
                     </div>
                     <div class="orion-input-group">
                         <label>LOSS TRIGGER %</label>
-                        <input id="p-loss-trigger" class="orion-input" value="0.1" step="0.1">
+                        <input id="p-loss-trigger" class="orion-input" value="0.05" step="0.1">
                     </div>
                     <div class="orion-input-group">
                         <label>MAX ATTEMPTS</label>
