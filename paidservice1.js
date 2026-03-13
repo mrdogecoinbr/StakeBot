@@ -1327,7 +1327,7 @@ ${gameInfo}
                     </div>
                     <div class="orion-input-group">
                         <label>MAX ATTEMPTS</label>
-                        <input id="p-max-recovery" class="orion-input" value="3" step="1">
+                        <input id="p-max-recovery" class="orion-input" value="8" step="1">
                     </div>
                     <div class="orion-input-group" style="grid-column: span 2">
                         <label>TREND MODE</label>
