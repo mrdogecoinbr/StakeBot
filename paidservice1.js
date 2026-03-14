@@ -1256,7 +1256,7 @@ ${gameInfo}
                     </div>
                     <div class="orion-input-group">
                         <label>LIMBO BASE BET</label>
-                        <input id="p-limbo-basebet" class="orion-input" value="0.001" step="any">
+                        <input id="p-limbo-basebet" class="orion-input" value="0" step="any">
                     </div>
                     <div class="orion-input-group">
                         <label>DICE BASE BET</label>
@@ -1264,7 +1264,7 @@ ${gameInfo}
                     </div>
                     <div class="orion-input-group">
                         <label>DIVIDER</label>
-                        <input id="p-div" class="orion-input" value="600" placeholder="0 = manual basebet">
+                        <input id="p-div" class="orion-input" value=1000" placeholder="0 = manual basebet">
                     </div>
                 </div>
             </div>
@@ -1280,7 +1280,7 @@ ${gameInfo}
                     </div>
                     <div class="orion-input-group">
                         <label>CYCLES</label>
-                        <input id="p-limbo-cycles" class="orion-input" value="3">
+                        <input id="p-limbo-cycles" class="orion-input" value="1">
                     </div>
                 </div>
             </div>
@@ -1296,7 +1296,7 @@ ${gameInfo}
                     </div>
                     <div class="orion-input-group">
                         <label>CYCLES</label>
-                        <input id="p-dice-cycles" class="orion-input" value="100">
+                        <input id="p-dice-cycles" class="orion-input" value="10">
                     </div>
                 </div>
             </div>
@@ -1323,11 +1323,11 @@ ${gameInfo}
                     </div>
                     <div class="orion-input-group">
                         <label>LOSS TRIGGER %</label>
-                        <input id="p-loss-trigger" class="orion-input" value="0.05" step="0.1">
+                        <input id="p-loss-trigger" class="orion-input" value="0.01" step="0.1">
                     </div>
                     <div class="orion-input-group">
                         <label>MAX ATTEMPTS</label>
-                        <input id="p-max-recovery" class="orion-input" value="8" step="1">
+                        <input id="p-max-recovery" class="orion-input" value="3" step="1">
                     </div>
                     <div class="orion-input-group" style="grid-column: span 2">
                         <label>TREND MODE</label>
