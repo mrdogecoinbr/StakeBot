@@ -12,7 +12,7 @@
         startTime: null,
         stakeUser: "orionlogic",
         stats: { profit: 0, wagered: 0, startBal: 0, bets: 0, wins: 0, loss: 0, maxDD: 0 },
-        selectedCurrency: "DOGE",
+        selectedCurrency: "USDT",
         currentStatus: "IDLE",
         lastError: "None",
         switchCounter: 0,
