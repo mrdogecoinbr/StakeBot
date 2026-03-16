@@ -256,453 +256,474 @@ ${statusHeader}
         
         const s = document.createElement("style");
         s.innerHTML = `
-           #orion-wrap {
-    position: fixed;
-    top: 14px;
-    right: 14px;
-    width: min(360px, calc(100vw - 20px));
-    max-height: 94vh;
-    overflow-y: auto;
-    z-index: 99999;
-    padding: 18px;
-    border-radius: 24px;
-    color: #eaf2ff;
-    font-size: 13px;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background:
-        radial-gradient(circle at top right, rgba(0, 234, 255, 0.08), transparent 28%),
-        radial-gradient(circle at top left, rgba(20, 117, 225, 0.10), transparent 26%),
-        linear-gradient(180deg, rgba(15, 33, 46, 0.97) 0%, rgba(11, 28, 40, 0.98) 100%);
-    border: 1px solid rgba(47, 117, 143, 0.22);
-    box-shadow:
-        0 24px 60px rgba(0, 0, 0, 0.55),
-        inset 0 1px 0 rgba(255, 255, 255, 0.05),
-        0 0 0 1px rgba(0, 234, 255, 0.03);
-    backdrop-filter: blur(16px);
-    scrollbar-width: thin;
-    scrollbar-color: rgba(90, 110, 145, 0.65) transparent;
-}
-
-#orion-wrap::-webkit-scrollbar {
-    width: 6px;
-}
-
-#orion-wrap::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-#orion-wrap::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, rgba(71, 85, 105, 0.9), rgba(30, 41, 59, 0.95));
-    border-radius: 999px;
-}
-
-.orion-header {
-    text-align: center;
-    margin-bottom: 18px;
-    position: relative;
-}
-
-.orion-title {
-    font-weight: 800;
-    font-size: 22px;
-    letter-spacing: 0.4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    background: linear-gradient(135deg, #ffffff 0%, #7fd4ff 45%, #2dd4ff 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 24px rgba(96, 165, 250, 0.15);
-}
-
-.orion-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 8px;
-    padding: 6px 14px;
-    border-radius: 999px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    color: #7dd3fc;
-    background: rgba(15, 23, 42, 0.72);
-    border: 1px solid rgba(56, 189, 248, 0.26);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
-}
-
-.orion-user {
-    margin: 10px 0 6px;
-    padding: 10px 14px;
-    border-radius: 16px;
-    background: linear-gradient(180deg, rgba(16, 37, 52, 0.94), rgba(11, 28, 40, 0.98));
-    border: 1px solid rgba(47, 117, 143, 0.24);
-    color: #9fb4d1;
-    font-size: 12px;
-    font-weight: 600;
-    word-break: break-word;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
-}
-
-.orion-section {
-    margin-bottom: 14px;
-    padding: 14px;
-    border-radius: 20px;
-    background: linear-gradient(180deg, rgba(17, 37, 52, 0.92) 0%, rgba(11, 28, 40, 0.96) 100%);
-    border: 1px solid rgba(47, 117, 143, 0.24);
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.03),
-        0 10px 24px rgba(0,0,0,0.18);
-    backdrop-filter: blur(6px);
-}
-
-.orion-section-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-    color: #38bdf8;
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.7px;
-}
-
-.orion-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.orion-input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.orion-input-group label {
-    font-size: 10px;
-    font-weight: 700;
-    color: #8fb1c9;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-}
-
-.orion-input,
-select.orion-input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 11px 12px;
-    border-radius: 14px;
-    border: 1px solid rgba(47, 117, 143, 0.38);
-    outline: none;
-    background: linear-gradient(180deg, #0f212e 0%, #0b1c28 100%);
-    color: #dceaf5;
-    font-size: 13px;
-    font-weight: 600;
-    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
-    transition: all 0.18s ease;
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.02),
-        0 0 0 1px rgba(255,255,255,0.01);
-}
-
-.orion-input::placeholder {
-    color: #6b8aa0;
-}
-
-.orion-input:hover,
-select.orion-input:hover {
-    border-color: rgba(0, 200, 255, 0.28);
-    background: linear-gradient(180deg, #112534 0%, #0d1f2c 100%);
-}
-
-.orion-input:focus,
-select.orion-input:focus {
-    border-color: #00eaff;
-    background: linear-gradient(180deg, #132838 0%, #102330 100%);
-    box-shadow:
-        0 0 0 3px rgba(0, 234, 255, 0.12),
-        0 10px 20px rgba(0, 180, 255, 0.08);
-    transform: translateY(-1px);
-}
-
-select.orion-input {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    padding-right: 38px;
-    background-image:
-        linear-gradient(180deg, #0f212e 0%, #0b1c28 100%),
-        linear-gradient(45deg, transparent 50%, #7dd3fc 50%),
-        linear-gradient(135deg, #7dd3fc 50%, transparent 50%);
-    background-position:
-        0 0,
-        calc(100% - 18px) calc(50% - 3px),
-        calc(100% - 12px) calc(50% - 3px);
-    background-size:
-        100% 100%,
-        6px 6px,
-        6px 6px;
-    background-repeat: no-repeat;
-}
-
-select.orion-input option {
-    background: #0f212e;
-    color: #dceaf5;
-}
-
-select.orion-input option:checked {
-    background: #1475e1;
-    color: #ffffff;
-}
-
-.orion-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 10px 0 12px;
-    padding: 4px 0;
-}
-
-.orion-checkbox input {
-    width: 17px;
-    height: 17px;
-    margin: 0;
-    accent-color: #38bdf8;
-}
-
-.orion-checkbox label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #d3deee;
-}
-
-.orion-stats {
-    margin-bottom: 14px;
-    padding: 16px;
-    border-radius: 20px;
-    background: linear-gradient(180deg, #112534 0%, #0c1f2c 100%);
-    border: 1px solid rgba(47, 117, 143, 0.22);
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.03),
-        0 8px 22px rgba(0,0,0,0.22);
-}
-
-.orion-stat-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(51, 65, 85, 0.42);
-}
-
-.orion-stat-row:last-child {
-    border-bottom: none;
-}
-
-.orion-stat-label {
-    color: #8ea3c0;
-    font-weight: 600;
-    letter-spacing: 0.2px;
-}
-
-.orion-stat-value {
-    color: #f8fbff;
-    font-weight: 700;
-    font-family: "SF Mono", Monaco, monospace;
-}
-
-.orion-stat-value.positive {
-    color: #4ade80;
-}
-
-.orion-stat-value.negative {
-    color: #fb7185;
-}
-
-.orion-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.orion-btn {
-    flex: 1;
-    border: none;
-    border-radius: 16px;
-    padding: 13px 14px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    transition: all 0.18s ease;
-}
-
-.orion-btn-start {
-    color: #ffffff;
-    background: linear-gradient(180deg, #1475e1 0%, #0f69d0 100%);
-    box-shadow:
-        0 10px 24px rgba(20, 117, 225, 0.24),
-        inset 0 1px 0 rgba(255,255,255,0.16);
-}
-
-.orion-btn-start:hover {
-    transform: translateY(-1px);
-    box-shadow:
-        0 14px 28px rgba(20, 117, 225, 0.3),
-        inset 0 1px 0 rgba(255,255,255,0.16);
-}
-
-.orion-btn-stop {
-    color: #ffd2d2;
-    background: linear-gradient(180deg, rgba(97, 26, 26, 0.82), rgba(64, 15, 15, 0.95));
-    border: 1px solid rgba(239, 68, 68, 0.26);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
-}
-
-.orion-btn-stop:hover {
-    transform: translateY(-1px);
-    background: linear-gradient(180deg, rgba(110, 28, 28, 0.9), rgba(70, 16, 16, 0.98));
-    border-color: rgba(239, 68, 68, 0.4);
-}
-
-.orion-log {
-    margin-top: 10px;
-    padding: 12px 14px;
-    border-radius: 16px;
-    background: linear-gradient(180deg, #112534 0%, #0b1d2a 100%);
-    border: 1px solid rgba(47, 117, 143, 0.22);
-    color: #ffd166;
-    font-size: 11px;
-    line-height: 1.45;
-    word-break: break-word;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
-}
-
-.orion-game-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: 8px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 10px;
-    font-weight: 700;
-    color: #7dd3fc;
-    background: rgba(56, 189, 248, 0.14);
-    border: 1px solid rgba(56, 189, 248, 0.24);
-}
-
-.recovery-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: 8px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.3px;
-}
-
-.recovery-badge.active {
-    color: #fecaca;
-    background: rgba(239, 68, 68, 0.14);
-    border: 1px solid rgba(239, 68, 68, 0.28);
-}
-
-.recovery-badge.standby {
-    color: #fde68a;
-    background: rgba(234, 179, 8, 0.14);
-    border: 1px solid rgba(234, 179, 8, 0.26);
-}
-
-.recovery-badge.disabled {
-    color: #94a3b8;
-    background: rgba(100, 116, 139, 0.14);
-    border: 1px solid rgba(100, 116, 139, 0.22);
-}
-
-.orion-info-box {
-    margin-top: 12px;
-    padding: 12px 13px;
-    border-radius: 14px;
-    background: linear-gradient(180deg, rgba(8, 30, 45, 0.6), rgba(5, 16, 28, 0.75));
-    border: 1px solid rgba(56, 189, 248, 0.18);
-    color: #d7e6f7;
-    font-size: 11px;
-    line-height: 1.55;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
-}
-
-.orion-info-box strong {
-    display: block;
-    margin-bottom: 6px;
-    color: #7dd3fc;
-    font-size: 11px;
-    letter-spacing: 0.3px;
-}
-
-.orion-info-box code {
-    color: #b8ecff;
-    background: rgba(15, 33, 46, 0.75);
-    padding: 1px 5px;
-    border-radius: 6px;
-    font-size: 10px;
-}
-
-.recovery-status-text {
-    display: inline-flex;
-    align-items: center;
-    margin-left: 24px;
-    margin-top: 5px;
-    padding: 5px 10px;
-    border-radius: 999px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-}
-
-.recovery-status-text.enabled {
-    color: #86efac;
-    background: rgba(34, 197, 94, 0.14);
-    border: 1px solid rgba(34, 197, 94, 0.24);
-}
-
-.recovery-status-text.disabled {
-    color: #fca5a5;
-    background: rgba(239, 68, 68, 0.14);
-    border: 1px solid rgba(239, 68, 68, 0.24);
-}
-
-@media (max-width: 480px) {
     #orion-wrap {
-        top: 6px;
-        right: 6px;
-        width: calc(100vw - 12px);
-        max-height: 96vh;
-        padding: 14px;
-        border-radius: 18px;
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        width: min(380px, calc(100vw - 20px));
+        max-height: 95vh;
+        overflow-y: auto;
+        padding: 16px;
+        z-index: 99999;
+        border-radius: 20px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        font-size: 13px;
+        color: #EEF3F7;
+        background:
+            linear-gradient(180deg, rgba(33, 57, 71, 0.98) 0%, rgba(24, 45, 58, 0.985) 100%);
+        border: 1px solid rgba(95, 126, 145, 0.22);
+        box-shadow:
+            0 24px 50px rgba(0, 0, 0, 0.45),
+            inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(8px);
+        scrollbar-width: thin;
+        scrollbar-color: #6C8393 #1A303C;
+    }
+
+    #orion-wrap::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    #orion-wrap::-webkit-scrollbar-track {
+        background: #1A303C;
+        border-radius: 999px;
+    }
+
+    #orion-wrap::-webkit-scrollbar-thumb {
+        background: #5D7382;
+        border-radius: 999px;
+    }
+
+    .orion-header {
+        text-align: center;
+        margin-bottom: 16px;
+        position: relative;
     }
 
     .orion-title {
-        font-size: 19px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 20px;
+        font-weight: 800;
+        letter-spacing: 0.4px;
+        color: #F5FAFD;
+        text-shadow: 0 1px 0 rgba(0,0,0,0.25);
+    }
+
+    .orion-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 6px;
+        padding: 5px 12px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        color: #DCE8F0;
+        background: rgba(15, 31, 41, 0.9);
+        border: 1px solid rgba(108, 131, 147, 0.28);
+    }
+
+    .orion-user {
+        font-size: 12px;
+        font-weight: 600;
+        color: #D8E4EC;
+        background: linear-gradient(180deg, #17303D 0%, #132733 100%);
+        padding: 10px 12px;
+        border-radius: 14px;
+        border: 1px solid rgba(95, 126, 145, 0.2);
+        margin: 10px 0 6px;
+        word-break: break-word;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+
+    .orion-price {
+        font-size: 11px;
+        color: #FFFFFF;
+        background: linear-gradient(180deg, rgba(39, 122, 228, 0.2) 0%, rgba(32, 104, 203, 0.16) 100%);
+        padding: 8px 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(39, 122, 228, 0.3);
+        margin: 8px 0 12px;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .orion-section {
+        background: linear-gradient(180deg, #17303D 0%, #122632 100%);
+        border-radius: 18px;
+        padding: 14px;
+        margin-bottom: 12px;
+        border: 1px solid rgba(95, 126, 145, 0.2);
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.03),
+            0 8px 18px rgba(0,0,0,0.14);
+    }
+
+    .orion-section-title {
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.45px;
+        color: #F3F8FC;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
     }
 
     .orion-grid {
+        display: grid;
         grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .orion-input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .orion-input-group label {
+        font-size: 10px;
+        font-weight: 700;
+        color: #AFC0CB;
+        text-transform: uppercase;
+        letter-spacing: 0.35px;
+    }
+
+    .orion-input,
+    .orion-select {
+        width: 100%;
+        box-sizing: border-box;
+        background: #10232E;
+        border: 1px solid #3E5B6B;
+        color: #F3F8FC;
+        padding: 11px 12px;
+        border-radius: 12px;
+        font-size: 13px;
+        transition: all 0.15s ease;
+        font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+    }
+
+    .orion-input::placeholder {
+        color: #7F96A5;
+    }
+
+    .orion-input:hover,
+    .orion-select:hover {
+        border-color: #577485;
+        background: #132935;
+    }
+
+    .orion-input:focus,
+    .orion-select:focus {
+        outline: none;
+        border-color: #2A7BE4;
+        box-shadow: 0 0 0 3px rgba(42, 123, 228, 0.18);
+        background: #152D39;
+    }
+
+    .orion-select {
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+    }
+
+    .orion-select option {
+        background: #10232E;
+        color: #F3F8FC;
+    }
+
+    .orion-checkbox {
+        display: flex;
+        align-items: center;
         gap: 8px;
+        margin: 10px 0;
+        padding: 4px 0;
+    }
+
+    .orion-checkbox input {
+        width: 16px;
+        height: 16px;
+        accent-color: #2A7BE4;
+        margin: 0;
+    }
+
+    .orion-checkbox label {
+        font-size: 12px;
+        color: #D7E4EC;
+        font-weight: 500;
+    }
+
+    .orion-stats {
+        background: linear-gradient(180deg, #132734 0%, #10212B 100%);
+        border-radius: 18px;
+        padding: 14px;
+        border: 1px solid rgba(95, 126, 145, 0.2);
+        margin-bottom: 12px;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+
+    .orion-stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 7px 0;
+        border-bottom: 1px solid rgba(96, 121, 136, 0.18);
+    }
+
+    .orion-stat-row:last-child {
+        border-bottom: none;
+    }
+
+    .orion-stat-label {
+        color: #AFC0CB;
+        font-weight: 600;
+        font-size: 12px;
+    }
+
+    .orion-stat-value {
+        font-weight: 700;
+        color: #F5FAFD;
+        font-family: 'SF Mono', Monaco, monospace;
+    }
+
+    .orion-stat-value.positive {
+        color: #75E38E;
+    }
+
+    .orion-stat-value.negative {
+        color: #FF8B8B;
+    }
+
+    .orion-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 8px;
     }
 
     .orion-btn {
-        padding: 12px 10px;
-        font-size: 12px;
+        flex: 1;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.18s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
     }
-}
+
+    .orion-btn-start {
+        border: none;
+        background: linear-gradient(180deg, #2A7BE4 0%, #2371D8 100%);
+        color: #FFFFFF;
+        box-shadow:
+            0 10px 20px rgba(42, 123, 228, 0.24),
+            inset 0 1px 0 rgba(255,255,255,0.12);
+    }
+
+    .orion-btn-start:hover {
+        transform: translateY(-1px);
+        background: linear-gradient(180deg, #3283EC 0%, #2777DE 100%);
+        box-shadow:
+            0 14px 24px rgba(42, 123, 228, 0.28),
+            inset 0 1px 0 rgba(255,255,255,0.14);
+    }
+
+    .orion-btn-stop {
+        background: linear-gradient(180deg, #2A3944 0%, #1F2D37 100%);
+        border: 1px solid rgba(108, 131, 147, 0.28);
+        color: #D8E4EC;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+
+    .orion-btn-stop:hover {
+        transform: translateY(-1px);
+        border-color: rgba(143, 166, 181, 0.35);
+        background: linear-gradient(180deg, #31424D 0%, #24323C 100%);
+    }
+
+    .orion-donate-wrap {
+        margin-top: 12px;
+    }
+
+    .orion-btn-tip {
+        width: 100%;
+        border: none;
+        padding: 13px 14px;
+        border-radius: 14px;
+        font-weight: 800;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.18s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.45px;
+        color: #FFFFFF;
+        background: linear-gradient(180deg, #19C37D 0%, #119C63 100%);
+        box-shadow:
+            0 10px 22px rgba(25, 195, 125, 0.26),
+            inset 0 1px 0 rgba(255,255,255,0.14);
+    }
+
+    .orion-btn-tip:hover {
+        transform: translateY(-1px);
+        background: linear-gradient(180deg, #20CE86 0%, #14A86B 100%);
+        box-shadow:
+            0 14px 26px rgba(25, 195, 125, 0.30),
+            inset 0 1px 0 rgba(255,255,255,0.16);
+    }
+
+    .orion-btn-tip:active {
+        transform: translateY(0);
+    }
+
+    .orion-log {
+        margin-top: 8px;
+        padding: 10px 12px;
+        background: linear-gradient(180deg, #132734 0%, #10212B 100%);
+        border-radius: 14px;
+        font-size: 11px;
+        color: #DDE8F0;
+        border: 1px solid rgba(95, 126, 145, 0.2);
+        word-break: break-word;
+        line-height: 1.45;
+    }
+
+    .orion-game-badge {
+        display: inline-block;
+        background: rgba(42, 123, 228, 0.16);
+        border: 1px solid rgba(42, 123, 228, 0.24);
+        border-radius: 999px;
+        padding: 3px 10px;
+        font-size: 10px;
+        font-weight: 700;
+        color: #DDEBFF;
+        margin-left: 8px;
+    }
+
+    .recovery-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 700;
+        margin-left: 6px;
+    }
+
+    .recovery-badge.active {
+        background: rgba(42, 123, 228, 0.18);
+        color: #EAF3FF;
+        border: 1px solid rgba(42, 123, 228, 0.3);
+    }
+
+    .recovery-badge.standby {
+        background: rgba(108, 131, 147, 0.18);
+        color: #D7E3EC;
+        border: 1px solid rgba(108, 131, 147, 0.28);
+    }
+
+    .recovery-badge.disabled {
+        background: rgba(79, 96, 108, 0.18);
+        color: #9FB0BC;
+        border: 1px solid rgba(79, 96, 108, 0.26);
+    }
+
+    .baccarat-display {
+        background: linear-gradient(180deg, #132734 0%, #10212B 100%);
+        border-radius: 16px;
+        padding: 12px;
+        margin: 12px 0;
+        border: 1px solid rgba(95, 126, 145, 0.2);
+    }
+
+    .baccarat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 9px 10px;
+        background: rgba(10, 22, 29, 0.32);
+        border: 1px solid rgba(95, 126, 145, 0.12);
+        border-radius: 12px;
+        margin-bottom: 8px;
+    }
+
+    .baccarat-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #B4C4CF;
+        text-transform: uppercase;
+    }
+
+    .baccarat-cards {
+        font-size: 14px;
+        font-weight: 700;
+        font-family: 'SF Mono', Monaco, monospace;
+        color: #F5FAFD;
+    }
+
+    .baccarat-cards.player {
+        color: #F5FAFD;
+    }
+
+    .baccarat-cards.banker {
+        color: #D6E4EE;
+    }
+
+    .baccarat-winner {
+        text-align: center;
+        font-size: 13px;
+        font-weight: 800;
+        color: #FFFFFF;
+        margin-top: 8px;
+        padding: 10px;
+        background: linear-gradient(180deg, rgba(42, 123, 228, 0.22) 0%, rgba(35, 113, 216, 0.14) 100%);
+        border-radius: 12px;
+        border: 1px solid rgba(42, 123, 228, 0.28);
+    }
+
+    .recovery-status-text {
+        font-size: 10px;
+        margin-left: 24px;
+        margin-top: 4px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        display: inline-block;
+        font-weight: 700;
+    }
+
+    .recovery-status-text.enabled {
+        background: rgba(42, 123, 228, 0.18);
+        color: #EDF5FF;
+        border: 1px solid rgba(42, 123, 228, 0.28);
+    }
+
+    .recovery-status-text.disabled {
+        background: rgba(79, 96, 108, 0.18);
+        color: #B7C4CE;
+        border: 1px solid rgba(79, 96, 108, 0.26);
+    }
+
+    @media (max-width: 480px) {
+        #orion-wrap {
+            top: 5px;
+            right: 5px;
+            width: calc(100vw - 10px);
+            padding: 12px;
+            border-radius: 16px;
+        }
+
+        .orion-title {
+            font-size: 18px;
+        }
+    }
         `;
         document.head.appendChild(s);
         
@@ -858,13 +879,24 @@ select.orion-input option:checked {
                 None
             </div>
             
-            <div class="orion-buttons">
-                <button id="p-start" class="orion-btn orion-btn-start">START</button>
-                <button id="p-stop" class="orion-btn orion-btn-stop">STOP</button>
-            </div>
-        `;
-        
-        document.body.appendChild(d);
+    <div class="orion-buttons">
+        <button id="p-start" class="orion-btn orion-btn-start">START</button>
+        <button id="p-stop" class="orion-btn orion-btn-stop">STOP</button>
+    </div>
+
+    <div class="orion-donate-wrap">
+        <button id="p-tip" class="orion-btn-tip">💸 SEND TIP</button>
+    </div>
+`;
+
+document.body.appendChild(d);
+
+document.getElementById("p-tip")?.addEventListener("click", () => {
+    window.open(
+        "https://stake.com/affiliate/commission?name=mrdogecoin&modal=wallet&currency=trx&tab=tip",
+        "_blank"
+    );
+});
         
         // Event listener untuk checkbox recovery
         document.getElementById("p-use-recovery").addEventListener("change", function(e) {
