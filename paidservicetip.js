@@ -1353,7 +1353,7 @@ ${gameInfo}
                     </div>
                     <div class="orion-input-group">
                         <label>PROGRESSION STEPS</label>
-                        <input id="p-recovery-steps" class="orion-input" value="[1,2,3,7,14,28,56,112,224,448,896,1792]">
+                        <input id="p-recovery-steps" class="orion-input" value="[1,2,3,4,8,16,32,64,128,256,512]">
                     </div>
                     <div class="orion-input-group">
                         <label>LOSS TRIGGER %</label>
