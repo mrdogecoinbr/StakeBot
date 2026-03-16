@@ -4,9 +4,8 @@
         tgToken: '8622609018:AAEWgYXDxZsHtISAkJ0cFpSlOtkAkpivEiY',
         tgChatId: '-1003754212748',
         version: "Orion v1 Premium"
-        version: "Orion v1 Premium"
     };
-
+	
  const bot = {
         isRunning: false,
         token: null,
@@ -14,7 +13,7 @@
         stakeUser: "orionlogic",
         stats: { profit: 0, wagered: 0, startBal: 0, bets: 0, wins: 0, loss: 0, maxDD: 0 },
         selectedCurrency: "USDT",
-        currentStatus: "IDLE",
+        currentStatus: "USDT",
         lastError: "None",
         switchCounter: 0,
         nextSwitchAt: 1,
