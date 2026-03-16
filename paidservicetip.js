@@ -1257,7 +1257,7 @@ s.innerHTML = `
         }
     }
 `;
-document.head.appendChild(s);
+document.head.appendChild(s);;
 
 const d = document.createElement("div");
 d.id = "orion-wrap";
