@@ -5,7 +5,7 @@
         tgChatId: '-1003754212748',
         version: "Orion v1 Premium"
     };
-	
+
  const bot = {
         isRunning: false,
         token: null,
@@ -13,7 +13,7 @@
         stakeUser: "orionlogic",
         stats: { profit: 0, wagered: 0, startBal: 0, bets: 0, wins: 0, loss: 0, maxDD: 0 },
         selectedCurrency: "USDT",
-        currentStatus: "USDT",
+        currentStatus: "IDLE",
         lastError: "None",
         switchCounter: 0,
         nextSwitchAt: 1,
@@ -786,8 +786,8 @@ ${gameInfo}
     function createUI() {
         if (document.getElementById("orion-wrap")) return;
         
-const s = document.createElement("style");
-s.innerHTML = `
+        const s = document.createElement("style");
+       s.innerHTML = `
     #orion-wrap {
         position: fixed;
         top: 10px;
@@ -1083,40 +1083,6 @@ s.innerHTML = `
         background: linear-gradient(180deg, #31424D 0%, #24323C 100%);
     }
 
-    .orion-donate-wrap {
-        margin-top: 12px;
-    }
-
-    .orion-btn-tip {
-        width: 100%;
-        border: none;
-        padding: 13px 14px;
-        border-radius: 14px;
-        font-weight: 800;
-        font-size: 13px;
-        cursor: pointer;
-        transition: all 0.18s ease;
-        text-transform: uppercase;
-        letter-spacing: 0.45px;
-        color: #FFFFFF;
-        background: linear-gradient(180deg, #19C37D 0%, #119C63 100%);
-        box-shadow:
-            0 10px 22px rgba(25, 195, 125, 0.26),
-            inset 0 1px 0 rgba(255,255,255,0.14);
-    }
-
-    .orion-btn-tip:hover {
-        transform: translateY(-1px);
-        background: linear-gradient(180deg, #20CE86 0%, #14A86B 100%);
-        box-shadow:
-            0 14px 26px rgba(25, 195, 125, 0.30),
-            inset 0 1px 0 rgba(255,255,255,0.16);
-    }
-
-    .orion-btn-tip:active {
-        transform: translateY(0);
-    }
-
     .orion-log {
         margin-top: 8px;
         padding: 10px 12px;
@@ -1257,207 +1223,197 @@ s.innerHTML = `
         }
     }
 `;
-document.head.appendChild(s);;
-
-const d = document.createElement("div");
-d.id = "orion-wrap";
-d.innerHTML = `
-    <div class="orion-header">
-        <div class="orion-title">
-            <span>⚜️</span> PASSOLARGO BOT <span>⚜️</span>
-        </div>
-        <div class="orion-badge">PREMIUM EDITION</div>
-    </div>
-    
-    <div class="orion-user" id="st-user">
-        Loading...
-    </div>
-    
-    <div class="orion-price" id="st-idr-price">
-        Loading price...
-    </div>
-    
-    <div class="orion-section">
-        <div class="orion-section-title">
-            <span>⚙️</span> SYSTEM CONFIG
-        </div>
-        <div class="orion-grid">
-            <div style="grid-column: span 2">
-                <div class="orion-input-group">
-                    <label>CURRENCY</label>
-                    <select id="p-currency" class="orion-select"></select>
+        document.head.appendChild(s);
+        
+        const d = document.createElement("div");
+        d.id = "orion-wrap";
+        d.innerHTML = `
+            <div class="orion-header">
+                <div class="orion-title">
+                    <span>⚜️</span> PASSOLARGO BOT <span>⚜️</span>
+                </div>
+                <div class="orion-badge">PREMIUM EDITION</div>
+            </div>
+            
+            <div class="orion-user" id="st-user">
+                Loading...
+            </div>
+            
+            <div class="orion-price" id="st-idr-price">
+                Loading price...
+            </div>
+            
+            <div class="orion-section">
+                <div class="orion-section-title">
+                    <span>⚙️</span> SYSTEM CONFIG
+                </div>
+                <div class="orion-grid">
+                    <div style="grid-column: span 2">
+                        <div class="orion-input-group">
+                            <label>CURRENCY</label>
+                            <select id="p-currency" class="orion-select"></select>
+                        </div>
+                    </div>
+                    <div class="orion-input-group">
+                        <label>LIMBO BASE BET</label>
+                        <input id="p-limbo-basebet" class="orion-input" value="0" step="any">
+                    </div>
+                    <div class="orion-input-group">
+                        <label>DICE BASE BET</label>
+                        <input id="p-dice-basebet" class="orion-input" value="0.01" step="any">
+                    </div>
+                    <div class="orion-input-group">
+                        <label>DIVIDER</label>
+                       <input id="p-div" class="orion-input" value="1000" placeholder="0 = manual basebet">
+                    </div>
                 </div>
             </div>
-            <div class="orion-input-group">
-                <label>LIMBO BASE BET</label>
-                <input id="p-limbo-basebet" class="orion-input" value="0" step="any">
+            
+            <div class="orion-section">
+                <div class="orion-section-title">
+                    <span>🎲</span> LIMBO STRATEGY
+                </div>
+                <div class="orion-grid">
+                    <div class="orion-input-group">
+                        <label>PAYOUT</label>
+                        <input id="p-limbo-payout" class="orion-input" value="1.0001" step="0.0001">
+                    </div>
+                    <div class="orion-input-group">
+                        <label>CYCLES</label>
+                        <input id="p-limbo-cycles" class="orion-input" value="1">
+                    </div>
+                </div>
             </div>
-            <div class="orion-input-group">
-                <label>DICE BASE BET</label>
-                <input id="p-dice-basebet" class="orion-input" value="0.01" step="any">
+            
+            <div class="orion-section">
+                <div class="orion-section-title">
+                    <span>🎯</span> DICE STRATEGY
+                </div>
+                <div class="orion-grid">
+                    <div class="orion-input-group">
+                        <label>CHANCE %</label>
+                        <input id="p-dice-chance" class="orion-input" value="99.98" step="0.1">
+                    </div>
+                    <div class="orion-input-group">
+                        <label>CYCLES</label>
+                        <input id="p-dice-cycles" class="orion-input" value="10">
+                    </div>
+                </div>
             </div>
-            <div class="orion-input-group">
-                <label>DIVIDER</label>
-                <input id="p-div" class="orion-input" value="1000" placeholder="0 = manual basebet">
+            
+            <div class="orion-section">
+                <div class="orion-section-title">
+                    <span>🔄</span> BACCARAT RECOVERY MODE
+                    <span id="recovery-status-badge" class="recovery-badge disabled">DISABLED</span>
+                </div>
+                <div class="orion-checkbox">
+                    <input type="checkbox" id="p-use-recovery" checked>
+                    <label>Enable Baccarat Recovery</label>
+                </div>
+                <div id="recovery-toggle-status" class="recovery-status-text enabled">✓ RECOVERY IS ENABLED</div>
+                
+                <div class="orion-grid">
+                    <div class="orion-input-group">
+                        <label>BASE BET</label>
+                        <input id="p-baccarat-basebet" class="orion-input" value="0.01" step="any">
+                    </div>
+                    <div class="orion-input-group">
+                        <label>PROGRESSION STEPS</label>
+                        <input id="p-recovery-steps" class="orion-input" value="[1,2,3,7,14,28,56,112,224,448,896,1792]">
+                    </div>
+                    <div class="orion-input-group">
+                        <label>LOSS TRIGGER %</label>
+                        <input id="p-loss-trigger" class="orion-input" value="0.01" step="0.1">
+                    </div>
+                    <div class="orion-input-group">
+                        <label>MAX ATTEMPTS</label>
+                        <input id="p-max-recovery" class="orion-input" value="3" step="1">
+                    </div>
+                    <div class="orion-input-group" style="grid-column: span 2">
+                        <label>TREND MODE</label>
+                        <select id="p-recovery-trend" class="orion-select">
+                            <option value="follow">Follow Winner</option>
+                            <option value="fix">Fix Position</option>
+                            <option value="rotate">Rotate</option>
+                        </select>
+                    </div>
+                    <div class="orion-input-group" style="grid-column: span 2" id="fix-side-container">
+                        <label>FIX SIDE</label>
+                        <select id="p-fix-side" class="orion-select">
+                            <option value="player">PLAYER</option>
+                            <option value="banker">BANKER</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- BACCARAT DISPLAY -->
+                <div class="baccarat-display" id="baccarat-display">
+                    <div class="baccarat-row">
+                        <span class="baccarat-label">PLAYER</span>
+                        <span class="baccarat-cards player" id="baccarat-player-cards">-</span>
+                    </div>
+                    <div class="baccarat-row">
+                        <span class="baccarat-label">BANKER</span>
+                        <span class="baccarat-cards banker" id="baccarat-banker-cards">-</span>
+                    </div>
+                    <div class="baccarat-winner" id="baccarat-winner">-</div>
+                </div>
             </div>
-        </div>
-    </div>
-    
-    <div class="orion-section">
-        <div class="orion-section-title">
-            <span>🎲</span> LIMBO STRATEGY
-        </div>
-        <div class="orion-grid">
-            <div class="orion-input-group">
-                <label>PAYOUT</label>
-                <input id="p-limbo-payout" class="orion-input" value="1.0001" step="0.0001">
+            
+            <div class="orion-stats">
+                <div class="orion-stat-row">
+                    <span class="orion-stat-label">TIME</span>
+                    <span class="orion-stat-value" id="st-time">00:00:00</span>
+                </div>
+                <div class="orion-stat-row">
+                    <span class="orion-stat-label">STATUS</span>
+                    <span class="orion-stat-value" id="st-status" style="color: #38BDF8">IDLE</span>
+                </div>
+                <div class="orion-stat-row">
+                    <span class="orion-stat-label">RECOVERY</span>
+                    <span class="orion-stat-value" id="st-recovery">DISABLED</span>
+                </div>
+                <div class="orion-stat-row">
+                    <span class="orion-stat-label">BALANCE</span>
+                    <span class="orion-stat-value" id="st-startbal">0.00000000</span>
+                </div>
+                <div class="orion-stat-row">
+                    <span class="orion-stat-label">PROFIT</span>
+                    <span class="orion-stat-value" id="st-profit">0.00000000</span>
+                </div>
+                <div class="orion-stat-row">
+                    <span class="orion-stat-label">WAGERED</span>
+                    <span class="orion-stat-value" id="st-wager">0.00000000</span>
+                </div>
+                <div class="orion-stat-row">
+                    <span class="orion-stat-label">MAX DD</span>
+                    <span class="orion-stat-value" style="color: #F87171" id="st-dd">0.00000000</span>
+                </div>
+                <div class="orion-stat-row">
+                    <span class="orion-stat-label">BETS</span>
+                    <span class="orion-stat-value" id="st-bets">0</span>
+                </div>
+                <div class="orion-stat-row">
+                    <span class="orion-stat-label">W/L</span>
+                    <span class="orion-stat-value" id="st-wl">0/0</span>
+                </div>
+                <div class="orion-stat-row">
+                    <span class="orion-stat-label">SPEED</span>
+                    <span class="orion-stat-value" id="st-speed">0 b/s</span>
+                </div>
             </div>
-            <div class="orion-input-group">
-                <label>CYCLES</label>
-                <input id="p-limbo-cycles" class="orion-input" value="1">
+            
+            <div class="orion-log" id="st-log">
+                None
             </div>
-        </div>
-    </div>
-    
-    <div class="orion-section">
-        <div class="orion-section-title">
-            <span>🎯</span> DICE STRATEGY
-        </div>
-        <div class="orion-grid">
-            <div class="orion-input-group">
-                <label>CHANCE %</label>
-                <input id="p-dice-chance" class="orion-input" value="99.98" step="0.1">
+            
+            <div class="orion-buttons">
+                <button id="p-start" class="orion-btn orion-btn-start">START</button>
+                <button id="p-stop" class="orion-btn orion-btn-stop">STOP</button>
             </div>
-            <div class="orion-input-group">
-                <label>CYCLES</label>
-                <input id="p-dice-cycles" class="orion-input" value="10">
-            </div>
-        </div>
-    </div>
-    
-    <div class="orion-section">
-        <div class="orion-section-title">
-            <span>🔄</span> BACCARAT RECOVERY MODE
-            <span id="recovery-status-badge" class="recovery-badge disabled">DISABLED</span>
-        </div>
-        <div class="orion-checkbox">
-            <input type="checkbox" id="p-use-recovery" checked>
-            <label>Enable Baccarat Recovery</label>
-        </div>
-        <div id="recovery-toggle-status" class="recovery-status-text enabled">✓ RECOVERY IS ENABLED</div>
+        `;
         
-        <div class="orion-grid">
-            <div class="orion-input-group">
-                <label>BASE BET</label>
-                <input id="p-baccarat-basebet" class="orion-input" value="0.01" step="any">
-            </div>
-            <div class="orion-input-group">
-                <label>PROGRESSION STEPS</label>
-                <input id="p-recovery-steps" class="orion-input" value="[1,2,3,7,14,28,56,112,224,448,896,1792]">
-            </div>
-            <div class="orion-input-group">
-                <label>LOSS TRIGGER %</label>
-                <input id="p-loss-trigger" class="orion-input" value="0.01" step="0.1">
-            </div>
-            <div class="orion-input-group">
-                <label>MAX ATTEMPTS</label>
-                <input id="p-max-recovery" class="orion-input" value="3" step="1">
-            </div>
-            <div class="orion-input-group" style="grid-column: span 2">
-                <label>TREND MODE</label>
-                <select id="p-recovery-trend" class="orion-select">
-                    <option value="follow">Follow Winner</option>
-                    <option value="fix">Fix Position</option>
-                    <option value="rotate">Rotate</option>
-                </select>
-            </div>
-            <div class="orion-input-group" style="grid-column: span 2" id="fix-side-container">
-                <label>FIX SIDE</label>
-                <select id="p-fix-side" class="orion-select">
-                    <option value="player">PLAYER</option>
-                    <option value="banker">BANKER</option>
-                </select>
-            </div>
-        </div>
-        
-        <div class="baccarat-display" id="baccarat-display">
-            <div class="baccarat-row">
-                <span class="baccarat-label">PLAYER</span>
-                <span class="baccarat-cards player" id="baccarat-player-cards">-</span>
-            </div>
-            <div class="baccarat-row">
-                <span class="baccarat-label">BANKER</span>
-                <span class="baccarat-cards banker" id="baccarat-banker-cards">-</span>
-            </div>
-            <div class="baccarat-winner" id="baccarat-winner">-</div>
-        </div>
-    </div>
-    
-    <div class="orion-stats">
-        <div class="orion-stat-row">
-            <span class="orion-stat-label">TIME</span>
-            <span class="orion-stat-value" id="st-time">00:00:00</span>
-        </div>
-        <div class="orion-stat-row">
-            <span class="orion-stat-label">STATUS</span>
-            <span class="orion-stat-value" id="st-status" style="color: #38BDF8">IDLE</span>
-        </div>
-        <div class="orion-stat-row">
-            <span class="orion-stat-label">RECOVERY</span>
-            <span class="orion-stat-value" id="st-recovery">DISABLED</span>
-        </div>
-        <div class="orion-stat-row">
-            <span class="orion-stat-label">BALANCE</span>
-            <span class="orion-stat-value" id="st-startbal">0.00000000</span>
-        </div>
-        <div class="orion-stat-row">
-            <span class="orion-stat-label">PROFIT</span>
-            <span class="orion-stat-value" id="st-profit">0.00000000</span>
-        </div>
-        <div class="orion-stat-row">
-            <span class="orion-stat-label">WAGERED</span>
-            <span class="orion-stat-value" id="st-wager">0.00000000</span>
-        </div>
-        <div class="orion-stat-row">
-            <span class="orion-stat-label">MAX DD</span>
-            <span class="orion-stat-value" style="color: #F87171" id="st-dd">0.00000000</span>
-        </div>
-        <div class="orion-stat-row">
-            <span class="orion-stat-label">BETS</span>
-            <span class="orion-stat-value" id="st-bets">0</span>
-        </div>
-        <div class="orion-stat-row">
-            <span class="orion-stat-label">W/L</span>
-            <span class="orion-stat-value" id="st-wl">0/0</span>
-        </div>
-        <div class="orion-stat-row">
-            <span class="orion-stat-label">SPEED</span>
-            <span class="orion-stat-value" id="st-speed">0 b/s</span>
-        </div>
-    </div>
-    
-    <div class="orion-log" id="st-log">
-        None
-    </div>
-    
-    <div class="orion-buttons">
-        <button id="p-start" class="orion-btn orion-btn-start">START</button>
-        <button id="p-stop" class="orion-btn orion-btn-stop">STOP</button>
-    </div>
-
-    <div class="orion-donate-wrap">
-        <button id="p-tip" class="orion-btn-tip">💸 SEND TIP</button>
-    </div>
-`;
-
-document.body.appendChild(d);
-
-document.getElementById("p-tip")?.addEventListener("click", () => {
-    window.open(
-        "https://stake.com/affiliate/commission?name=mrdogecoin&modal=wallet&currency=trx&tab=tip",
-        "_blank"
-    );
-});
+        document.body.appendChild(d);
         
         // Event listener untuk trend mode
         document.getElementById("p-recovery-trend").addEventListener("change", function(e) {
