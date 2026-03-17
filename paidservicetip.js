@@ -1458,7 +1458,20 @@ document.body.appendChild(d);
 
 document.getElementById("p-tip")?.addEventListener("click", () => {
     const tipUrl = `${window.location.origin}/affiliate/commission?name=mrdogecoin&modal=wallet&currency=trx&tab=tip`;
-    window.open(tipUrl, "_blank", "noopener,noreferrer");
+
+    const popup = window.open(
+        tipUrl,
+        "stake_tip_popup",
+        "width=520,height=760,left=200,top=80,resizable=yes,scrollbars=yes"
+    );
+
+    if (popup) {
+        setTimeout(() => {
+            window.focus();
+        }, 150);
+    } else {
+        console.error("Popup bloqueada pelo navegador.");
+    }
 });
 
 document.getElementById("p-reset-pos")?.addEventListener("click", () => {
