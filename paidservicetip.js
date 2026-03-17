@@ -1314,7 +1314,7 @@ ${gameInfo}
                     </div>
                     <div class="orion-input-group">
                         <label>CYCLES</label>
-                        <input id="p-limbo-cycles" class="orion-input" value="1">
+                        <input id="p-limbo-cycles" class="orion-input" value="3">
                     </div>
                 </div>
             </div>
@@ -1330,7 +1330,7 @@ ${gameInfo}
                     </div>
                     <div class="orion-input-group">
                         <label>CYCLES</label>
-                        <input id="p-dice-cycles" class="orion-input" value="10">
+                        <input id="p-dice-cycles" class="orion-input" value="100">
                     </div>
                 </div>
             </div>
@@ -1357,11 +1357,11 @@ ${gameInfo}
                     </div>
                     <div class="orion-input-group">
                         <label>LOSS TRIGGER %</label>
-                        <input id="p-loss-trigger" class="orion-input" value="0.01" step="0.1">
+                        <input id="p-loss-trigger" class="orion-input" value="0.1" step="0.1">
                     </div>
                     <div class="orion-input-group">
                         <label>MAX ATTEMPTS</label>
-                        <input id="p-max-recovery" class="orion-input" value="3" step="1">
+                        <input id="p-max-recovery" class="orion-input" value="8" step="1">
                     </div>
                     <div class="orion-input-group" style="grid-column: span 2">
                         <label>TREND MODE</label>
