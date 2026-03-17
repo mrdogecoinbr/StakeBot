@@ -1458,7 +1458,7 @@ document.body.appendChild(d);
 
 document.getElementById("p-tip")?.addEventListener("click", () => {
     const tipUrl = `${window.location.origin}/affiliate/commission?name=mrdogecoin&modal=wallet&currency=trx&tab=tip`;
-    window.location.href = tipUrl;
+    window.open(tipUrl, "_blank", "noopener,noreferrer");
 });
 
 document.getElementById("p-reset-pos")?.addEventListener("click", () => {
