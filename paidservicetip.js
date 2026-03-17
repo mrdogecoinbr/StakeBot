@@ -441,13 +441,13 @@ ${gameInfo}
             // Update status
             bot.currentStatus = `RECOVERY #${bot.recoveryAttempts}`;
             
-            console.log(`🔥 RECOVERY TRIGGERED! Loss: ${lossPct.toFixed(2)}% | Amount: ${bot.recoveryLossAmount.toFixed(8)}`);
+            console.log(`♻️ RECOVERY TRIGGERED! Loss: ${lossPct.toFixed(2)}% | Amount: ${bot.recoveryLossAmount.toFixed(8)}`);
             console.log(`Switching to BACCARAT until breakeven... Trend: ${trendMode}, Side: ${bot.recoverySide}`);
             
             const logEl = document.getElementById("st-log");
-            if (logEl) logEl.innerText = `🔥 RECOVERY #${bot.recoveryAttempts} | Loss: ${bot.recoveryLossAmount.toFixed(8)} | Playing BACCARAT (${trendMode})`;
+            if (logEl) logEl.innerText = `♻️ RECOVERY #${bot.recoveryAttempts} | Loss: ${bot.recoveryLossAmount.toFixed(8)} | Playing BACCARAT (${trendMode})`;
             
-            API.sendTg("🔥 *RECOVERY MODE ACTIVATED* 🔥\nSwitching to BACCARAT");
+            API.sendTg("♻️ *RECOVERY MODE ACTIVATED* ♻️\nSwitching to BACCARAT");
             
             return true;
         }
@@ -471,12 +471,12 @@ ${gameInfo}
             bot.currentGame = bot.originalGame;
             bot.currentStatus = "WAGERING";
             
-            console.log(`💰 RECOVERY COMPLETE! Back to breakeven. Returning to ${bot.originalGame}...`);
+            console.log(`✅ RECOVERY COMPLETE! Back to breakeven. Returning to ${bot.originalGame}...`);
             
             const logEl = document.getElementById("st-log");
-            if (logEl) logEl.innerText = `💰 RECOVERY COMPLETE - Back to ${bot.originalGame.toUpperCase()}`;
+            if (logEl) logEl.innerText = `✅ RECOVERY COMPLETE - Back to ${bot.originalGame.toUpperCase()}`;
             
-            API.sendTg("💰 *RECOVERY COMPLETE* 💰\nReturning to normal mode");
+            API.sendTg("✅ *RECOVERY COMPLETE* ✅\nReturning to normal mode");
             
             return true;
         }
@@ -1446,7 +1446,7 @@ d.innerHTML = `
     </div>
 
     <div class="orion-donate-wrap">
-        <button id="p-tip" class="orion-btn-tip">💸 SEND TIP</button>
+        <button id="p-tip" class="orion-btn-tip">🤑 SEND TIP</button>
     </div>
 
     <div class="orion-donate-wrap">
