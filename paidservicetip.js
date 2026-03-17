@@ -1298,7 +1298,7 @@ ${gameInfo}
                     </div>
                     <div class="orion-input-group">
                         <label>DIVIDER</label>
-                       <input id="p-div" class="orion-input" value="500" placeholder="0 = manual basebet">
+                       <input id="p-div" class="orion-input" value="600" placeholder="0 = manual basebet">
                     </div>
                 </div>
             </div>
