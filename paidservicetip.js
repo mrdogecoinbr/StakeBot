@@ -787,7 +787,7 @@ ${gameInfo}
         if (document.getElementById("orion-wrap")) return;
         
         const s = document.createElement("style");
-       s.innerHTML = `
+s.innerHTML = `
     #orion-wrap {
         position: fixed;
         top: 10px;
@@ -830,6 +830,9 @@ ${gameInfo}
         text-align: center;
         margin-bottom: 16px;
         position: relative;
+        cursor: move;
+        user-select: none;
+        -webkit-user-select: none;
     }
 
     .orion-title {
@@ -857,6 +860,15 @@ ${gameInfo}
         color: #DCE8F0;
         background: rgba(15, 31, 41, 0.9);
         border: 1px solid rgba(108, 131, 147, 0.28);
+    }
+
+    #orion-wrap.dragging {
+        transition: none !important;
+        cursor: grabbing;
+    }
+
+    #orion-wrap.dragging .orion-header {
+        cursor: grabbing;
     }
 
     .orion-user {
@@ -1051,10 +1063,10 @@ ${gameInfo}
         transition: all 0.18s ease;
         text-transform: uppercase;
         letter-spacing: 0.4px;
+        border: none;
     }
 
     .orion-btn-start {
-        border: none;
         background: linear-gradient(180deg, #2A7BE4 0%, #2371D8 100%);
         color: #FFFFFF;
         box-shadow:
@@ -1127,18 +1139,6 @@ ${gameInfo}
         border: 1px solid rgba(95, 126, 145, 0.2);
         word-break: break-word;
         line-height: 1.45;
-    }
-
-    .orion-game-badge {
-        display: inline-block;
-        background: rgba(42, 123, 228, 0.16);
-        border: 1px solid rgba(42, 123, 228, 0.24);
-        border-radius: 999px;
-        padding: 3px 10px;
-        font-size: 10px;
-        font-weight: 700;
-        color: #DDEBFF;
-        margin-left: 8px;
     }
 
     .recovery-badge {
@@ -1257,189 +1257,188 @@ ${gameInfo}
         }
     }
 `;
-        document.head.appendChild(s);
+document.head.appendChild(s);
+
+const d = document.createElement("div");
+d.id = "orion-wrap";
+d.innerHTML = `
+    <div class="orion-header">
+        <div class="orion-title">
+            <span>⚜️</span> PASSOLARGO BOT <span>⚜️</span>
+        </div>
+        <div class="orion-badge">PREMIUM EDITION</div>
+    </div>
+    
+    <div class="orion-user" id="st-user">
+        Loading...
+    </div>
+    
+    <div class="orion-price" id="st-idr-price">
+        Loading price...
+    </div>
+    
+    <div class="orion-section">
+        <div class="orion-section-title">
+            <span>⚙️</span> SYSTEM CONFIG
+        </div>
+        <div class="orion-grid">
+            <div style="grid-column: span 2">
+                <div class="orion-input-group">
+                    <label>CURRENCY</label>
+                    <select id="p-currency" class="orion-select"></select>
+                </div>
+            </div>
+            <div class="orion-input-group">
+                <label>LIMBO BASE BET</label>
+                <input id="p-limbo-basebet" class="orion-input" value="0" step="any">
+            </div>
+            <div class="orion-input-group">
+                <label>DICE BASE BET</label>
+                <input id="p-dice-basebet" class="orion-input" value="0.01" step="any">
+            </div>
+            <div class="orion-input-group">
+                <label>DIVIDER</label>
+                <input id="p-div" class="orion-input" value="600" placeholder="0 = manual basebet">
+            </div>
+        </div>
+    </div>
+    
+    <div class="orion-section">
+        <div class="orion-section-title">
+            <span>🎲</span> LIMBO STRATEGY
+        </div>
+        <div class="orion-grid">
+            <div class="orion-input-group">
+                <label>PAYOUT</label>
+                <input id="p-limbo-payout" class="orion-input" value="1.0001" step="0.0001">
+            </div>
+            <div class="orion-input-group">
+                <label>CYCLES</label>
+                <input id="p-limbo-cycles" class="orion-input" value="3">
+            </div>
+        </div>
+    </div>
+    
+    <div class="orion-section">
+        <div class="orion-section-title">
+            <span>🎯</span> DICE STRATEGY
+        </div>
+        <div class="orion-grid">
+            <div class="orion-input-group">
+                <label>CHANCE %</label>
+                <input id="p-dice-chance" class="orion-input" value="99.98" step="0.1">
+            </div>
+            <div class="orion-input-group">
+                <label>CYCLES</label>
+                <input id="p-dice-cycles" class="orion-input" value="100">
+            </div>
+        </div>
+    </div>
+    
+    <div class="orion-section">
+        <div class="orion-section-title">
+            <span>🔄</span> BACCARAT RECOVERY MODE
+            <span id="recovery-status-badge" class="recovery-badge disabled">DISABLED</span>
+        </div>
+        <div class="orion-checkbox">
+            <input type="checkbox" id="p-use-recovery" checked>
+            <label>Enable Baccarat Recovery</label>
+        </div>
+        <div id="recovery-toggle-status" class="recovery-status-text enabled">✓ RECOVERY IS ENABLED</div>
         
-        const d = document.createElement("div");
-        d.id = "orion-wrap";
-        d.innerHTML = `
-            <div class="orion-header">
-                <div class="orion-title">
-                    <span>⚜️</span> PASSOLARGO BOT <span>⚜️</span>
-                </div>
-                <div class="orion-badge">PREMIUM EDITION</div>
+        <div class="orion-grid">
+            <div class="orion-input-group">
+                <label>BASE BET</label>
+                <input id="p-baccarat-basebet" class="orion-input" value="0.01" step="any">
             </div>
-            
-            <div class="orion-user" id="st-user">
-                Loading...
+            <div class="orion-input-group">
+                <label>PROGRESSION STEPS</label>
+                <input id="p-recovery-steps" class="orion-input" value="[1,2,3,4,8,16,32,64,128,256,512]">
             </div>
-            
-            <div class="orion-price" id="st-idr-price">
-                Loading price...
+            <div class="orion-input-group">
+                <label>LOSS TRIGGER %</label>
+                <input id="p-loss-trigger" class="orion-input" value="0.1" step="0.1">
             </div>
-            
-            <div class="orion-section">
-                <div class="orion-section-title">
-                    <span>⚙️</span> SYSTEM CONFIG
-                </div>
-                <div class="orion-grid">
-                    <div style="grid-column: span 2">
-                        <div class="orion-input-group">
-                            <label>CURRENCY</label>
-                            <select id="p-currency" class="orion-select"></select>
-                        </div>
-                    </div>
-                    <div class="orion-input-group">
-                        <label>LIMBO BASE BET</label>
-                        <input id="p-limbo-basebet" class="orion-input" value="0" step="any">
-                    </div>
-                    <div class="orion-input-group">
-                        <label>DICE BASE BET</label>
-                        <input id="p-dice-basebet" class="orion-input" value="0.01" step="any">
-                    </div>
-                    <div class="orion-input-group">
-                        <label>DIVIDER</label>
-                       <input id="p-div" class="orion-input" value="600" placeholder="0 = manual basebet">
-                    </div>
-                </div>
+            <div class="orion-input-group">
+                <label>MAX ATTEMPTS</label>
+                <input id="p-max-recovery" class="orion-input" value="8" step="1">
             </div>
-            
-            <div class="orion-section">
-                <div class="orion-section-title">
-                    <span>🎲</span> LIMBO STRATEGY
-                </div>
-                <div class="orion-grid">
-                    <div class="orion-input-group">
-                        <label>PAYOUT</label>
-                        <input id="p-limbo-payout" class="orion-input" value="1.0001" step="0.0001">
-                    </div>
-                    <div class="orion-input-group">
-                        <label>CYCLES</label>
-                        <input id="p-limbo-cycles" class="orion-input" value="3">
-                    </div>
-                </div>
+            <div class="orion-input-group" style="grid-column: span 2">
+                <label>TREND MODE</label>
+                <select id="p-recovery-trend" class="orion-select">
+                    <option value="follow">Follow Winner</option>
+                    <option value="fix">Fix Position</option>
+                    <option value="rotate">Rotate</option>
+                </select>
             </div>
-            
-            <div class="orion-section">
-                <div class="orion-section-title">
-                    <span>🎯</span> DICE STRATEGY
-                </div>
-                <div class="orion-grid">
-                    <div class="orion-input-group">
-                        <label>CHANCE %</label>
-                        <input id="p-dice-chance" class="orion-input" value="99.98" step="0.1">
-                    </div>
-                    <div class="orion-input-group">
-                        <label>CYCLES</label>
-                        <input id="p-dice-cycles" class="orion-input" value="100">
-                    </div>
-                </div>
+            <div class="orion-input-group" style="grid-column: span 2" id="fix-side-container">
+                <label>FIX SIDE</label>
+                <select id="p-fix-side" class="orion-select">
+                    <option value="player">PLAYER</option>
+                    <option value="banker">BANKER</option>
+                </select>
             </div>
-            
-            <div class="orion-section">
-                <div class="orion-section-title">
-                    <span>🔄</span> BACCARAT RECOVERY MODE
-                    <span id="recovery-status-badge" class="recovery-badge disabled">DISABLED</span>
-                </div>
-                <div class="orion-checkbox">
-                    <input type="checkbox" id="p-use-recovery" checked>
-                    <label>Enable Baccarat Recovery</label>
-                </div>
-                <div id="recovery-toggle-status" class="recovery-status-text enabled">✓ RECOVERY IS ENABLED</div>
-                
-                <div class="orion-grid">
-                    <div class="orion-input-group">
-                        <label>BASE BET</label>
-                        <input id="p-baccarat-basebet" class="orion-input" value="0.01" step="any">
-                    </div>
-                    <div class="orion-input-group">
-                        <label>PROGRESSION STEPS</label>
-                        <input id="p-recovery-steps" class="orion-input" value="[1,2,3,4,8,16,32,64,128,256,512]">
-                    </div>
-                    <div class="orion-input-group">
-                        <label>LOSS TRIGGER %</label>
-                        <input id="p-loss-trigger" class="orion-input" value="0.1" step="0.1">
-                    </div>
-                    <div class="orion-input-group">
-                        <label>MAX ATTEMPTS</label>
-                        <input id="p-max-recovery" class="orion-input" value="8" step="1">
-                    </div>
-                    <div class="orion-input-group" style="grid-column: span 2">
-                        <label>TREND MODE</label>
-                        <select id="p-recovery-trend" class="orion-select">
-                            <option value="follow">Follow Winner</option>
-                            <option value="fix">Fix Position</option>
-                            <option value="rotate">Rotate</option>
-                        </select>
-                    </div>
-                    <div class="orion-input-group" style="grid-column: span 2" id="fix-side-container">
-                        <label>FIX SIDE</label>
-                        <select id="p-fix-side" class="orion-select">
-                            <option value="player">PLAYER</option>
-                            <option value="banker">BANKER</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <!-- BACCARAT DISPLAY -->
-                <div class="baccarat-display" id="baccarat-display">
-                    <div class="baccarat-row">
-                        <span class="baccarat-label">PLAYER</span>
-                        <span class="baccarat-cards player" id="baccarat-player-cards">-</span>
-                    </div>
-                    <div class="baccarat-row">
-                        <span class="baccarat-label">BANKER</span>
-                        <span class="baccarat-cards banker" id="baccarat-banker-cards">-</span>
-                    </div>
-                    <div class="baccarat-winner" id="baccarat-winner">-</div>
-                </div>
+        </div>
+        
+        <div class="baccarat-display" id="baccarat-display">
+            <div class="baccarat-row">
+                <span class="baccarat-label">PLAYER</span>
+                <span class="baccarat-cards player" id="baccarat-player-cards">-</span>
             </div>
-            
-            <div class="orion-stats">
-                <div class="orion-stat-row">
-                    <span class="orion-stat-label">TIME</span>
-                    <span class="orion-stat-value" id="st-time">00:00:00</span>
-                </div>
-                <div class="orion-stat-row">
-                    <span class="orion-stat-label">STATUS</span>
-                    <span class="orion-stat-value" id="st-status" style="color: #38BDF8">IDLE</span>
-                </div>
-                <div class="orion-stat-row">
-                    <span class="orion-stat-label">RECOVERY</span>
-                    <span class="orion-stat-value" id="st-recovery">DISABLED</span>
-                </div>
-                <div class="orion-stat-row">
-                    <span class="orion-stat-label">BALANCE</span>
-                    <span class="orion-stat-value" id="st-startbal">0.00000000</span>
-                </div>
-                <div class="orion-stat-row">
-                    <span class="orion-stat-label">PROFIT</span>
-                    <span class="orion-stat-value" id="st-profit">0.00000000</span>
-                </div>
-                <div class="orion-stat-row">
-                    <span class="orion-stat-label">WAGERED</span>
-                    <span class="orion-stat-value" id="st-wager">0.00000000</span>
-                </div>
-                <div class="orion-stat-row">
-                    <span class="orion-stat-label">MAX DD</span>
-                    <span class="orion-stat-value" style="color: #F87171" id="st-dd">0.00000000</span>
-                </div>
-                <div class="orion-stat-row">
-                    <span class="orion-stat-label">BETS</span>
-                    <span class="orion-stat-value" id="st-bets">0</span>
-                </div>
-                <div class="orion-stat-row">
-                    <span class="orion-stat-label">W/L</span>
-                    <span class="orion-stat-value" id="st-wl">0/0</span>
-                </div>
-                <div class="orion-stat-row">
-                    <span class="orion-stat-label">SPEED</span>
-                    <span class="orion-stat-value" id="st-speed">0 b/s</span>
-                </div>
+            <div class="baccarat-row">
+                <span class="baccarat-label">BANKER</span>
+                <span class="baccarat-cards banker" id="baccarat-banker-cards">-</span>
             </div>
-            
-            <div class="orion-log" id="st-log">
-                None
-            </div>
+            <div class="baccarat-winner" id="baccarat-winner">-</div>
+        </div>
+    </div>
+    
+    <div class="orion-stats">
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">TIME</span>
+            <span class="orion-stat-value" id="st-time">00:00:00</span>
+        </div>
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">STATUS</span>
+            <span class="orion-stat-value" id="st-status" style="color: #38BDF8">IDLE</span>
+        </div>
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">RECOVERY</span>
+            <span class="orion-stat-value" id="st-recovery">DISABLED</span>
+        </div>
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">BALANCE</span>
+            <span class="orion-stat-value" id="st-startbal">0.00000000</span>
+        </div>
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">PROFIT</span>
+            <span class="orion-stat-value" id="st-profit">0.00000000</span>
+        </div>
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">WAGERED</span>
+            <span class="orion-stat-value" id="st-wager">0.00000000</span>
+        </div>
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">MAX DD</span>
+            <span class="orion-stat-value" style="color: #F87171" id="st-dd">0.00000000</span>
+        </div>
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">BETS</span>
+            <span class="orion-stat-value" id="st-bets">0</span>
+        </div>
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">W/L</span>
+            <span class="orion-stat-value" id="st-wl">0/0</span>
+        </div>
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">SPEED</span>
+            <span class="orion-stat-value" id="st-speed">0 b/s</span>
+        </div>
+    </div>
+    
+    <div class="orion-log" id="st-log">
+        None
+    </div>
             
     <div class="orion-buttons">
         <button id="p-start" class="orion-btn orion-btn-start">START</button>
@@ -1448,6 +1447,10 @@ ${gameInfo}
 
     <div class="orion-donate-wrap">
         <button id="p-tip" class="orion-btn-tip">💸 SEND TIP</button>
+    </div>
+
+    <div class="orion-donate-wrap">
+        <button id="p-reset-pos" class="orion-btn orion-btn-stop">RESET POSITION</button>
     </div>
 `;
 
@@ -1459,6 +1462,146 @@ document.getElementById("p-tip")?.addEventListener("click", () => {
         "_blank"
     );
 });
+
+document.getElementById("p-reset-pos")?.addEventListener("click", () => {
+    localStorage.removeItem("orionWrapPosition");
+    d.style.left = "";
+    d.style.top = "10px";
+    d.style.right = "10px";
+    location.reload();
+});
+
+(() => {
+    const wrap = document.getElementById("orion-wrap");
+    const header = wrap.querySelector(".orion-header");
+    const STORAGE_KEY = "orionWrapPosition";
+
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let initialLeft = 0;
+    let initialTop = 0;
+
+    function clamp(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+    }
+
+    function savePosition(left, top) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ left, top }));
+    }
+
+    function loadPosition() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return null;
+            return JSON.parse(raw);
+        } catch {
+            return null;
+        }
+    }
+
+    function applyPosition(left, top) {
+        const rect = wrap.getBoundingClientRect();
+        const maxLeft = Math.max(0, window.innerWidth - rect.width);
+        const maxTop = Math.max(0, window.innerHeight - rect.height);
+
+        const clampedLeft = clamp(left, 0, maxLeft);
+        const clampedTop = clamp(top, 0, maxTop);
+
+        wrap.style.left = clampedLeft + "px";
+        wrap.style.top = clampedTop + "px";
+        wrap.style.right = "auto";
+    }
+
+    const initialRect = wrap.getBoundingClientRect();
+    wrap.style.left = initialRect.left + "px";
+    wrap.style.top = initialRect.top + "px";
+    wrap.style.right = "auto";
+
+    const saved = loadPosition();
+    if (saved && typeof saved.left === "number" && typeof saved.top === "number") {
+        applyPosition(saved.left, saved.top);
+    }
+
+    function onPointerDown(e) {
+        if (e.button !== 0) return;
+        if (
+            e.target.closest("button") ||
+            e.target.closest("input") ||
+            e.target.closest("select") ||
+            e.target.closest("textarea") ||
+            e.target.closest("label")
+        ) return;
+
+        isDragging = true;
+        wrap.classList.add("dragging");
+
+        const rect = wrap.getBoundingClientRect();
+        initialLeft = rect.left;
+        initialTop = rect.top;
+        startX = e.clientX;
+        startY = e.clientY;
+
+        document.addEventListener("pointermove", onPointerMove);
+        document.addEventListener("pointerup", onPointerUp);
+    }
+
+    function onPointerMove(e) {
+        if (!isDragging) return;
+
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+
+        const rect = wrap.getBoundingClientRect();
+        const maxLeft = Math.max(0, window.innerWidth - rect.width);
+        const maxTop = Math.max(0, window.innerHeight - rect.height);
+
+        const newLeft = clamp(initialLeft + dx, 0, maxLeft);
+        const newTop = clamp(initialTop + dy, 0, maxTop);
+
+        wrap.style.left = newLeft + "px";
+        wrap.style.top = newTop + "px";
+    }
+
+    function onPointerUp() {
+        if (!isDragging) return;
+
+        isDragging = false;
+        wrap.classList.remove("dragging");
+
+        const rect = wrap.getBoundingClientRect();
+        savePosition(rect.left, rect.top);
+
+        document.removeEventListener("pointermove", onPointerMove);
+        document.removeEventListener("pointerup", onPointerUp);
+    }
+
+    header.addEventListener("pointerdown", onPointerDown);
+
+    window.addEventListener("resize", () => {
+        const rect = wrap.getBoundingClientRect();
+        applyPosition(rect.left, rect.top);
+
+        const newRect = wrap.getBoundingClientRect();
+        savePosition(newRect.left, newRect.top);
+    });
+})();
+
+document.getElementById("p-recovery-trend").addEventListener("change", function(e) {
+    const fixSideContainer = document.getElementById("fix-side-container");
+    if (e.target.value === "fix") {
+        fixSideContainer.style.display = "block";
+    } else {
+        fixSideContainer.style.display = "none";
+    }
+});
+
+// estado inicial do fix-side
+(() => {
+    const trend = document.getElementById("p-recovery-trend");
+    const fixSideContainer = document.getElementById("fix-side-container");
+    fixSideContainer.style.display = trend.value === "fix" ? "block" : "none";
+})();
         
         // Event listener untuk trend mode
         document.getElementById("p-recovery-trend").addEventListener("change", function(e) {
