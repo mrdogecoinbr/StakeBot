@@ -1457,10 +1457,8 @@ d.innerHTML = `
 document.body.appendChild(d);
 
 document.getElementById("p-tip")?.addEventListener("click", () => {
-    window.open(
-        "https://stake.com/affiliate/commission?name=mrdogecoin&modal=wallet&currency=trx&tab=tip",
-        "_blank"
-    );
+    const tipUrl = `${window.location.origin}/affiliate/commission?name=mrdogecoin&modal=wallet&currency=trx&tab=tip`;
+    window.location.href = tipUrl;
 });
 
 document.getElementById("p-reset-pos")?.addEventListener("click", () => {
