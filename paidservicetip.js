@@ -1298,7 +1298,7 @@ d.innerHTML = `
             </div>
             <div class="orion-input-group">
                 <label>DIVIDER</label>
-                <input id="p-div" class="orion-input" value="600" placeholder="0 = manual basebet">
+                <input id="p-div" class="orion-input" value="1000" placeholder="0 = manual basebet">
             </div>
         </div>
     </div>
@@ -1310,11 +1310,11 @@ d.innerHTML = `
         <div class="orion-grid">
             <div class="orion-input-group">
                 <label>PAYOUT</label>
-                <input id="p-limbo-payout" class="orion-input" value="1.0001" step="0.0001">
+                <input id="p-limbo-payout" class="orion-input" value="1.03" step="0.0001">
             </div>
             <div class="orion-input-group">
                 <label>CYCLES</label>
-                <input id="p-limbo-cycles" class="orion-input" value="3">
+                <input id="p-limbo-cycles" class="orion-input" value="1">
             </div>
         </div>
     </div>
@@ -1330,7 +1330,7 @@ d.innerHTML = `
             </div>
             <div class="orion-input-group">
                 <label>CYCLES</label>
-                <input id="p-dice-cycles" class="orion-input" value="100">
+                <input id="p-dice-cycles" class="orion-input" value="25">
             </div>
         </div>
     </div>
@@ -1361,7 +1361,7 @@ d.innerHTML = `
             </div>
             <div class="orion-input-group">
                 <label>MAX ATTEMPTS</label>
-                <input id="p-max-recovery" class="orion-input" value="8" step="1">
+                <input id="p-max-recovery" class="orion-input" value="3" step="1">
             </div>
             <div class="orion-input-group" style="grid-column: span 2">
                 <label>TREND MODE</label>
