@@ -101,7 +101,7 @@
         async _fetch_price(coin) {
             coin = coin.toLowerCase();
             if (coin === "matic") coin = "pol";
-            if (coin === "doge") coin = "doge";
+            if (coin === "usdt") coin = "usdt";
 
             try {
                 try {
