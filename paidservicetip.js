@@ -1,8 +1,8 @@
 (function () {
     const CONFIG = {
         get apiUrl() { return window.location.origin + '/_api'; },
-        tgToken: '8386154052:AAFQTv8ex1AfzN1Xjr8QToNv6bgJ8l2L_H0',
-        tgChatId: '-1003776328846',
+        tgToken: '8622609018:AAEWgYXDxZsHtISAkJ0cFpSlOtkAkpivEiY',
+        tgChatId: '-1003754212748',
         version: "Orion v1 Premium"
     };
 
@@ -10,10 +10,10 @@
         isRunning: false,
         token: null,
         startTime: null,
-        stakeUser: "orionlogic",
+        stakeUser: "mrkenocoin79",
         stats: { profit: 0, wagered: 0, startBal: 0, bets: 0, wins: 0, loss: 0, maxDD: 0 },
-        selectedCurrency: "DOGE",
-        currentStatus: "IDLE",
+        selectedCurrency: "USDT",
+        currentStatus: "USDT",
         lastError: "None",
         switchCounter: 0,
         nextSwitchAt: 1,
@@ -49,7 +49,7 @@
         // Price cache
         idrPrice: 0,
         lastPriceFetch: 0,
-        priceSymbol: "IDR"
+        priceSymbol: "USDT"
     };
 
     let reportInterval = null;
@@ -947,31 +947,52 @@ s.innerHTML = `
     }
 
     .orion-input,
-    .orion-select {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 14px 14px;
-        border-radius: 16px;
-        border: 1px solid rgba(73, 113, 150, 0.55);
-        background: linear-gradient(180deg, #0a2130 0%, #09202d 100%);
-        color: #f7fbff;
-        font-size: 13px;
-        font-weight: 700;
-        font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
-        outline: none;
-        transition: all 0.18s ease;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
-    }
+.orion-select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(73, 113, 150, 0.55);
+    background: linear-gradient(180deg, #0a2130 0%, #09202d 100%);
+    color: #f7fbff;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    outline: none;
+    transition: all 0.18s ease;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
 
-    .orion-input::placeholder {
-        color: #7f96ab;
-    }
+/* fundo da lista aberta */
+.orion-select option {
+    background: #0d2230;
+    color: #f7fbff;
+}
 
-    .orion-input:focus,
-    .orion-select:focus {
-        border-color: #3ea6ff;
-        box-shadow: 0 0 0 3px rgba(62, 166, 255, 0.14);
-    }
+/* item selecionado */
+.orion-select option:checked {
+    background: #2f7fe6;
+    color: #ffffff;
+}
+
+/* alguns navegadores aceitam hover */
+.orion-select option:hover {
+    background: #2468be;
+    color: #ffffff;
+}
+
+.orion-input::placeholder {
+    color: #7f96ab;
+}
+
+.orion-input:focus,
+.orion-select:focus {
+    border-color: #3ea6ff;
+    box-shadow: 0 0 0 3px rgba(62, 166, 255, 0.14);
+}
 
     .orion-stats {
         margin-bottom: 14px;
