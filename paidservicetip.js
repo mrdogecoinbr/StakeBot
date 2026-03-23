@@ -1,18 +1,18 @@
 (function () {
     const CONFIG = {
         get apiUrl() { return window.location.origin + '/_api'; },
-        tgToken: '8622609018:AAEWgYXDxZsHtISAkJ0cFpSlOtkAkpivEiY',
-        tgChatId: '-1003754212748',
+        tgToken: '8386154052:AAFQTv8ex1AfzN1Xjr8QToNv6bgJ8l2L_H0',
+        tgChatId: '-1003776328846',
         version: "Orion v1 Premium"
     };
 
- const bot = {
+    const bot = {
         isRunning: false,
         token: null,
         startTime: null,
         stakeUser: "orionlogic",
         stats: { profit: 0, wagered: 0, startBal: 0, bets: 0, wins: 0, loss: 0, maxDD: 0 },
-        selectedCurrency: "USDT",
+        selectedCurrency: "DOGE",
         currentStatus: "IDLE",
         lastError: "None",
         switchCounter: 0,
@@ -20,7 +20,12 @@
         currentGame: "limbo",
         recoveryStatus: "DISABLED",
         
-        // BACCARAT RECOVERY MODE
+        // BETTING PHASE SYSTEM
+        bettingPhase: 1, // 1, 2, or 3
+        initialBalance: 0, // BALANCE AWAL DARI PHASE 1
+        phaseStartBalance: 0, // BALANCE SAAT MASUK PHASE TERTENTU
+        
+        // BACCARAT RECOVERY MODE (Phase 3)
         recoveryMode: false,
         recoveryStartBalance: 0,
         recoveryLossAmount: 0,
@@ -28,15 +33,11 @@
         recoverySide: "player",
         recoveryLastWinner: null,
         recoveryConsecutiveLosses: 0,
-        recoverySteps: [1, 2, 3, 4, 8, 16, 32, 64, 128, 256, 512],
+        recoveryFibonacci: [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610],
+        recoveryFibonacciIndex: 0,
         recoveryLastResults: [],
-        recoveryBetHistory: [],
-        recoveryTrendMode: "follow", // fix, rotate, follow
-        recoveryBaseBet: 0.001,
-        
-        // Original game stats
-        originalGame: "limbo",
-        originalSettings: {},
+        recoveryTrendMode: "follow",
+        recoveryBaseBet: 0.0001, // 0.01% from balance
         
         // Baccarat display
         baccaratCards: {
@@ -79,7 +80,6 @@
                 this._price = price;
                 this._last_fetch = now;
             } else {
-                // Fallback to static rates if fetch fails
                 return this._get_fallback_rate(coin);
             }
 
@@ -104,14 +104,12 @@
             if (coin === "doge") coin = "doge";
 
             try {
-                // Try direct fetch first (might work with CORS)
                 try {
                     return await this._direct_fetch(coin);
                 } catch (e) {
                     console.log("Direct fetch failed, trying proxy...");
                 }
 
-                // Try with different proxies
                 for (let i = 0; i < this._proxyUrls.length; i++) {
                     try {
                         const price = await this._proxy_fetch(coin, i);
@@ -189,7 +187,6 @@
         }
 
         _get_fallback_rate(coin) {
-            // Fallback rates jika API gagal (perkiraan harga)
             const rates = {
                 btc: 850000000,
                 eth: 35000000,
@@ -207,7 +204,7 @@
             coin = coin.toLowerCase();
             if (coin === "matic") coin = "pol";
             
-            return rates[coin] || 15000; // Default return USDT rate
+            return rates[coin] || 15000;
         }
     }
 
@@ -247,13 +244,17 @@
                     }
                     if (sel) {
                         bot.selectedCurrency = sel.value;
-                        // Update price when currency changes
                         updateIdrPrice();
                     }
                     const active = bals.find(b => b.available.currency === bot.selectedCurrency);
                     bot.stats.startBal = active ? parseFloat(active.available.amount) : 0;
+                    bot.initialBalance = bot.stats.startBal; // SET INITIAL BALANCE
+                    bot.phaseStartBalance = bot.stats.startBal;
                 }
-            } catch (e) { bot.lastError = "Sync Failed"; }
+            } catch (e) { 
+                bot.lastError = "Sync Failed"; 
+                console.error("Sync error:", e);
+            }
         },
         async sendTg(statusHeader) {
             const now = Date.now();
@@ -266,14 +267,18 @@
             const profitColor = bot.stats.profit >= 0 ? '🟢' : '🔴';
             const currentBalance = (bot.stats.startBal + bot.stats.profit).toFixed(8);
             
-            const recoveryIcon = bot.recoveryStatus === "ACTIVE" ? "🔴" : (bot.recoveryStatus === "STANDBY" ? "🟡" : "⚫");
+            let phaseIcon = bot.bettingPhase === 1 ? "🔥" : (bot.bettingPhase === 2 ? "⚡" : "🃏");
+            let phaseText = bot.bettingPhase === 1 ? "WAGER BURN" : (bot.bettingPhase === 2 ? "MID RISK" : "BACCARAT");
             
             let gameInfo = "";
-            if (bot.recoveryMode) {
-                gameInfo = `🎮 *Recovery:* BACCARAT (${bot.recoverySide.toUpperCase()}) | Step ${bot.recoveryConsecutiveLosses+1}/${bot.recoverySteps[bot.recoveryConsecutiveLosses]}x | Trend: ${bot.recoveryTrendMode.toUpperCase()}`;
+            if (bot.bettingPhase === 3) {
+                gameInfo = `🎮 *Phase 3:* BACCARAT (${bot.recoverySide.toUpperCase()}) | Fib Step ${bot.recoveryFibonacciIndex+1}/${bot.recoveryFibonacci[bot.recoveryFibonacciIndex]}x | Trend: ${bot.recoveryTrendMode.toUpperCase()}`;
             } else {
-                gameInfo = `🎮 *Game:* ${bot.currentGame.toUpperCase()} | Switch: ${bot.switchCounter}/${bot.nextSwitchAt}`;
+                gameInfo = `🎮 *Phase ${bot.bettingPhase}:* ${phaseText} | Game: ${bot.currentGame.toUpperCase()}`;
             }
+            
+            // Hitung total loss dari balance awal (initialBalance)
+            const totalLossPct = ((bot.initialBalance - currentBalance) / bot.initialBalance * 100).toFixed(2);
             
             const text = 
 `🔷 *ORION v1 PREMIUM* 🔷
@@ -282,8 +287,8 @@ ${statusHeader}
 👤 *User:* \`${bot.stakeUser}\`
 🪙 *Asset:* \`${bot.selectedCurrency.toUpperCase()}\`
 💵 *IDR Price:* \`Rp ${bot.idrPrice.toLocaleString()}\`
-⚙️ *Status:* \`${bot.currentStatus}\`
-🔄 *Recovery:* ${recoveryIcon} \`${bot.recoveryStatus}\`
+${phaseIcon} *Phase:* \`${bot.bettingPhase} - ${phaseText}\`
+📉 *Total Loss %:* \`${totalLossPct}%\`
 ${gameInfo}
 
 ⏱ *Uptime:* \`${timeStr}\`
@@ -301,7 +306,6 @@ ${gameInfo}
             try {
                 fetch(`https://api.telegram.org/bot${CONFIG.tgToken}/sendMessage`, {
                     method: "POST",
-                    mode: "no-cors",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ 
                         chat_id: CONFIG.tgChatId, 
@@ -375,7 +379,7 @@ ${gameInfo}
     // UPDATE IDR PRICE
     async function updateIdrPrice() {
         const now = Math.floor(Date.now() / 1000);
-        if (now - bot.lastPriceFetch < 300 && bot.idrPrice > 0) return bot.idrPrice; // Cache 5 menit
+        if (now - bot.lastPriceFetch < 300 && bot.idrPrice > 0) return bot.idrPrice;
         
         const currency = bot.selectedCurrency.toLowerCase();
         try {
@@ -390,7 +394,6 @@ ${gameInfo}
                     priceEl.style.color = "#FBBF24";
                 }
             } else {
-                // Tampilkan pesan error tapi tetap jalan
                 const priceEl = document.getElementById("st-idr-price");
                 if (priceEl) {
                     priceEl.innerHTML = `💰 Price: Using cached rate`;
@@ -403,146 +406,145 @@ ${gameInfo}
         return bot.idrPrice;
     }
 
-    // CEK TRIGGER RECOVERY
-    function checkRecoveryTrigger() {
-        const useRecovery = document.getElementById("p-use-recovery").checked;
-        if (!useRecovery) return false;
+    // GET CURRENT BALANCE
+    function getCurrentBalance() {
+        return bot.stats.startBal + bot.stats.profit;
+    }
+
+    // CALCULATE TOTAL LOSS PERCENTAGE FROM INITIAL BALANCE
+    function getTotalLossPercentage() {
+        const currentBalance = getCurrentBalance();
+        return ((bot.initialBalance - currentBalance) / bot.initialBalance) * 100;
+    }
+
+    // CALCULATE LOSS PERCENTAGE FROM PHASE START (untuk transisi antar phase)
+    function getPhaseLossPercentage() {
+        const currentBalance = getCurrentBalance();
+        return ((bot.phaseStartBalance - currentBalance) / bot.phaseStartBalance) * 100;
+    }
+
+    // CHECK AND UPDATE BETTING PHASE
+    function updateBettingPhase() {
+        const totalLossPct = getTotalLossPercentage();
+        const phaseLossPct = getPhaseLossPercentage();
         
-        const lossTrigger = parseFloat(document.getElementById("p-loss-trigger").value) || 1.0;
-        const currentBalance = bot.stats.startBal + bot.stats.profit;
-        const lossPct = ((bot.stats.startBal - currentBalance) / bot.stats.startBal * 100);
+        console.log(`[PHASE CHECK] Total Loss: ${totalLossPct.toFixed(4)}%, Phase Loss: ${phaseLossPct.toFixed(4)}%, Current Phase: ${bot.bettingPhase}`);
         
-        if (lossPct >= lossTrigger && !bot.recoveryMode) {
+        // Phase 1 to Phase 2: total loss > 0.2%
+        if (bot.bettingPhase === 1 && totalLossPct > 0.2) {
+            bot.bettingPhase = 2;
+            bot.currentGame = "dice";
+            bot.phaseStartBalance = getCurrentBalance(); // Reset phase start balance untuk tracking loss di phase 2
+            console.log(`⚡ Phase 2 ACTIVATED! Total Loss: ${totalLossPct.toFixed(2)}%`);
+            API.sendTg(`⚡ *PHASE 2 ACTIVATED* ⚡\nTotal Loss: ${totalLossPct.toFixed(2)}%`);
+            return true;
+        }
+        
+        // Phase 2 to Phase 3: total loss > 0.5%
+        if (bot.bettingPhase === 2 && totalLossPct > 0.5) {
+            bot.bettingPhase = 3;
             bot.recoveryMode = true;
-            bot.recoveryStatus = "ACTIVE";
-            bot.recoveryAttempts++;
-            bot.recoveryStartBalance = currentBalance;
-            bot.recoveryLossAmount = bot.stats.startBal - currentBalance;
+            bot.recoveryFibonacciIndex = 0;
+            bot.recoverySide = getBaccaratSide();
+            bot.recoveryBaseBet = bot.phaseStartBalance * 0.0001; // 0.01% dari balance saat masuk phase 3
             bot.recoveryConsecutiveLosses = 0;
-            
-            // Ambil trend mode dari UI
-            const trendMode = document.getElementById("p-recovery-trend").value;
-            bot.recoveryTrendMode = trendMode;
-            
-            // Tentukan side awal berdasarkan trend mode
-            if (trendMode === "fix") {
-                bot.recoverySide = document.getElementById("p-fix-side").value;
-            } else if (trendMode === "rotate") {
-                bot.recoverySide = Math.random() < 0.5 ? "player" : "banker";
-            } else {
-                bot.recoverySide = "player";
-            }
-            
-            bot.recoveryLastWinner = null;
-            
-            // Simpan game original
-            bot.originalGame = bot.currentGame;
-            
-            // Update status
-            bot.currentStatus = `RECOVERY #${bot.recoveryAttempts}`;
-            
-            console.log(`♻️ RECOVERY TRIGGERED! Loss: ${lossPct.toFixed(2)}% | Amount: ${bot.recoveryLossAmount.toFixed(8)}`);
-            console.log(`Switching to BACCARAT until breakeven... Trend: ${trendMode}, Side: ${bot.recoverySide}`);
-            
-            const logEl = document.getElementById("st-log");
-            if (logEl) logEl.innerText = `♻️ RECOVERY #${bot.recoveryAttempts} | Loss: ${bot.recoveryLossAmount.toFixed(8)} | Playing BACCARAT (${trendMode})`;
-            
-            API.sendTg("♻️ *RECOVERY MODE ACTIVATED* ♻️\nSwitching to BACCARAT");
-            
+            bot.recoveryTrendMode = "follow";
+            console.log(`🃏 Phase 3 (BACCARAT) ACTIVATED! Total Loss: ${totalLossPct.toFixed(2)}%`);
+            API.sendTg(`🃏 *PHASE 3 ACTIVATED* 🃏\nTotal Loss: ${totalLossPct.toFixed(2)}%\nSwitching to BACCARAT with Fibonacci progression`);
+            return true;
+        }
+        
+        // Phase 3 to Phase 2: total loss <= 0.4%
+        if (bot.bettingPhase === 3 && totalLossPct <= 0.4) {
+            bot.bettingPhase = 2;
+            bot.recoveryMode = false;
+            bot.currentGame = "dice";
+            bot.recoveryFibonacciIndex = 0;
+            bot.recoveryConsecutiveLosses = 0;
+            bot.phaseStartBalance = getCurrentBalance();
+            console.log(`⚡ Phase 2 ACTIVATED! Total Loss recovered to: ${totalLossPct.toFixed(2)}%`);
+            API.sendTg(`⚡ *BACK TO PHASE 2* ⚡\nTotal Loss: ${totalLossPct.toFixed(2)}%`);
+            return true;
+        }
+        
+        // Phase 2 to Phase 1: total loss <= 0.15%
+        if (bot.bettingPhase === 2 && totalLossPct <= 0.15) {
+            bot.bettingPhase = 1;
+            bot.currentGame = "limbo";
+            bot.phaseStartBalance = getCurrentBalance();
+            console.log(`🔥 Phase 1 (WAGER BURN) ACTIVATED! Total Loss: ${totalLossPct.toFixed(2)}%`);
+            API.sendTg(`🔥 *BACK TO PHASE 1* 🔥\nTotal Loss: ${totalLossPct.toFixed(2)}%`);
             return true;
         }
         
         return false;
     }
 
-    // CEK APAKAH RECOVERY SELESAI
-    function checkRecoveryComplete() {
-        if (!bot.recoveryMode) return false;
-        
-        const currentBalance = bot.stats.startBal + bot.stats.profit;
-        const maxAttempts = parseInt(document.getElementById("p-max-recovery").value) || 3;
-        
-        if (currentBalance >= bot.stats.startBal) {
-            bot.recoveryMode = false;
-            bot.recoveryStatus = "STANDBY";
-            bot.recoveryAttempts = 0;
-            bot.recoveryConsecutiveLosses = 0;
-            
-            bot.currentGame = bot.originalGame;
-            bot.currentStatus = "WAGERING";
-            
-            console.log(`✅ RECOVERY COMPLETE! Back to breakeven. Returning to ${bot.originalGame}...`);
-            
-            const logEl = document.getElementById("st-log");
-            if (logEl) logEl.innerText = `✅ RECOVERY COMPLETE - Back to ${bot.originalGame.toUpperCase()}`;
-            
-            API.sendTg("✅ *RECOVERY COMPLETE* ✅\nReturning to normal mode");
-            
-            return true;
-        }
-        
-        if (bot.recoveryAttempts >= maxAttempts) {
-            bot.recoveryMode = false;
-            bot.recoveryStatus = "STANDBY";
-            bot.recoveryAttempts = 0;
-            bot.currentGame = bot.originalGame;
-            
-            console.log(`⚠️ MAX RECOVERY ATTEMPTS (${maxAttempts}) REACHED. Returning to ${bot.originalGame}...`);
-            
-            const logEl = document.getElementById("st-log");
-            if (logEl) logEl.innerText = `⚠️ MAX RECOVERY - Back to ${bot.originalGame.toUpperCase()}`;
-            
-            API.sendTg("⚠️ *MAX RECOVERY ATTEMPTS REACHED* ⚠️\nReturning to normal mode");
-            
-            return true;
-        }
-        
-        return false;
-    }
-
-    // DAPATKAN SIDE UNTUK BACCARAT BERDASARKAN TREND MODE
+    // GET BACCARAT SIDE BASED ON TREND
     function getBaccaratSide() {
-        const trendMode = bot.recoveryTrendMode;
-        
-        if (trendMode === "fix") {
-            return document.getElementById("p-fix-side").value;
+        if (bot.recoveryLastResults.length > 3) {
+            const recentResults = bot.recoveryLastResults.slice(-5);
+            const playerWins = recentResults.filter(r => r === "player").length;
+            const bankerWins = recentResults.filter(r => r === "banker").length;
+            if (playerWins > bankerWins) return "player";
+            if (bankerWins > playerWins) return "banker";
         }
-        
-        if (trendMode === "rotate") {
-            return bot.recoverySide === "player" ? "banker" : "player";
-        }
-        
-        if (trendMode === "follow") {
-            if (bot.recoveryLastWinner && bot.recoveryLastWinner !== "tie") {
-                return bot.recoveryLastWinner;
-            }
-            
-            if (bot.recoveryLastResults.length > 5) {
-                const playerWins = bot.recoveryLastResults.filter(r => r === "player").length;
-                const bankerWins = bot.recoveryLastResults.filter(r => r === "banker").length;
-                return playerWins >= bankerWins ? "player" : "banker";
-            }
-            
-            return "player";
-        }
-        
-        return "player";
+        return Math.random() < 0.5 ? "player" : "banker";
     }
 
-    // DAPATKAN MULTIPLIER UNTUK RECOVERY
-    function getRecoveryMultiplier() {
-        const steps = JSON.parse(document.getElementById("p-recovery-steps").value || "[1,2,3,4,8,16,32,64,128,256,512]");
-        if (bot.recoveryConsecutiveLosses < steps.length) {
-            return steps[bot.recoveryConsecutiveLosses];
-        }
-        return steps[steps.length - 1];
+    // GET FIBONACCI BET MULTIPLIER
+    function getFibonacciMultiplier() {
+        const index = Math.min(bot.recoveryFibonacciIndex, bot.recoveryFibonacci.length - 1);
+        return bot.recoveryFibonacci[index];
     }
 
-    // HITUNG BET RECOVERY
-    function calculateRecoveryBet() {
-        const baseBet = parseFloat(document.getElementById("p-baccarat-basebet").value) || 0.001;
-        const multiplier = getRecoveryMultiplier();
-        return baseBet * multiplier;
+    // CALCULATE BACCARAT BET (Phase 3)
+    function calculateBaccaratBet() {
+        const multiplier = getFibonacciMultiplier();
+        return bot.recoveryBaseBet * multiplier;
+    }
+
+    // PROCESS BACCARAT BET RESULT
+    function processBaccaratResult(betResult, betSide, betAmount) {
+        const state = betResult.state || {};
+        const result = state.result || "unknown";
+        const payout = betResult.payout || 0;
+        const pnl = payout - betAmount;
+        
+        parseBaccaratCards(betResult);
+        
+        const isWin = (result === betSide);
+        const isTie = (result === "tie");
+        
+        bot.stats.bets++;
+        bot.stats.wagered += betAmount;
+        
+        if (isWin) {
+            bot.stats.wins++;
+            bot.recoveryLastWinner = betSide;
+            // Reset Fibonacci index on win (move back 2 steps)
+            bot.recoveryFibonacciIndex = Math.max(0, bot.recoveryFibonacciIndex - 2);
+            if (bot.recoveryFibonacciIndex < 0) bot.recoveryFibonacciIndex = 0;
+        } else if (isTie) {
+            bot.stats.ties = (bot.stats.ties || 0) + 1;
+            // No change on tie
+        } else {
+            bot.stats.loss++;
+            bot.recoveryFibonacciIndex = Math.min(bot.recoveryFibonacciIndex + 1, bot.recoveryFibonacci.length - 1);
+        }
+        
+        bot.recoveryLastResults.push(result);
+        if (bot.recoveryLastResults.length > 20) {
+            bot.recoveryLastResults.shift();
+        }
+        
+        bot.stats.profit += pnl;
+        
+        if (bot.stats.profit < bot.stats.maxDD) {
+            bot.stats.maxDD = bot.stats.profit;
+        }
+        
+        return pnl;
     }
 
     // PARSE BACCARAT CARDS
@@ -595,96 +597,75 @@ ${gameInfo}
         }
     }
 
-    // PROCESS BACCARAT BET RESULT
-    function processBaccaratResult(betResult, betSide, betAmount) {
-        const state = betResult.state || {};
-        const result = state.result || "unknown";
-        const payout = betResult.payout || 0;
-        const pnl = payout - betAmount;
-        
-        // Parse cards for display
-        parseBaccaratCards(betResult);
-        
-        const isWin = (result === betSide);
-        const isTie = (result === "tie");
-        
-        bot.stats.bets++;
-        bot.stats.wagered += betAmount;
-        
-        if (isWin) {
-            bot.stats.wins++;
-            bot.recoveryConsecutiveLosses = 0;
-            bot.recoveryLastWinner = betSide;
-        } else if (isTie) {
-            bot.stats.ties = (bot.stats.ties || 0) + 1;
-        } else {
-            bot.stats.loss++;
-            bot.recoveryConsecutiveLosses++;
-        }
-        
-        bot.recoveryLastResults.push(result);
-        if (bot.recoveryLastResults.length > 20) {
-            bot.recoveryLastResults.shift();
-        }
-        
-        bot.stats.profit += pnl;
-        
-        if (bot.stats.profit < bot.stats.maxDD) {
-            bot.stats.maxDD = bot.stats.profit;
-        }
-        
-        return pnl;
+    // CALCULATE PHASE 1 BET (WAGER BURN)
+    function calculatePhase1Bet() {
+        const currentBalance = getCurrentBalance();
+        // Random base bet between 0.1% - 0.5% of current balance
+        const randomPercent = 0.001 + (Math.random() * 0.004);
+        return currentBalance * randomPercent;
     }
 
-    // HITUNG BET NORMAL
-    function calculateNormalBet() {
-        const baseBetLimbo = parseFloat(document.getElementById("p-limbo-basebet").value) || 0.001;
-        const baseBetDice = parseFloat(document.getElementById("p-dice-basebet").value) || 0.001;
-        const divider = parseFloat(document.getElementById("p-div").value) || 0;
-        
-        if (divider > 0) {
-            return Math.max(baseBetLimbo, bot.stats.startBal / divider);
+    // CALCULATE PHASE 2 BET
+    function calculatePhase2Bet() {
+        const currentBalance = getCurrentBalance();
+        // 0.061% of current balance
+        return currentBalance * 0.00061;
+    }
+
+    // GET PHASE 1 GAME AND PAYOUT
+    function getPhase1GameAndPayout() {
+        const cycleCounter = bot.switchCounter % 7;
+        if (cycleCounter < 5) {
+            // Dice chance 99.98% (payout = 100/99.98 ≈ 1.0002)
+            return { game: "dice", payout: 100 / 99.98 };
         } else {
-            return bot.currentGame === "limbo" ? baseBetLimbo : baseBetDice;
+            // Limbo payout 1.0001
+            return { game: "limbo", payout: 1.0001 };
+        }
+    }
+
+    // GET PHASE 2 GAME AND PAYOUT
+    function getPhase2GameAndPayout() {
+        const cycleCounter = bot.switchCounter % 5;
+        if (cycleCounter < 3) {
+            // Dice chance 49.5% (payout = 100/49.5 ≈ 2.0202)
+            return { game: "dice", payout: 100 / 49.5 };
+        } else {
+            // Limbo payout 2
+            return { game: "limbo", payout: 2 };
         }
     }
 
     async function runLoop() {
         if (!bot.isRunning) return;
         
-        // Update IDR price periodically (every 5 minutes)
+        // Update IDR price periodically
         updateIdrPrice();
         
-        // CEK TRIGGER RECOVERY
-        checkRecoveryTrigger();
+        // Check and update betting phase based on loss percentage
+        updateBettingPhase();
         
-        // CEK APAKAH RECOVERY SELESAI
-        if (bot.recoveryMode) {
-            checkRecoveryComplete();
+        // Update status text
+        if (bot.bettingPhase === 1) {
+            bot.currentStatus = `PHASE 1 - WAGER BURN`;
+        } else if (bot.bettingPhase === 2) {
+            bot.currentStatus = `PHASE 2 - MID RISK`;
+        } else {
+            bot.currentStatus = `PHASE 3 - BACCARAT RECOVERY`;
         }
-        
-        // AMBIL SETTINGS DARI UI
-        const limboPayout = parseFloat(document.getElementById("p-limbo-payout").value) || 1.0001;
-        const diceChance = parseFloat(document.getElementById("p-dice-chance").value) || 98;
-        const limboCycles = parseInt(document.getElementById("p-limbo-cycles").value) || 3;
-        const diceCycles = parseInt(document.getElementById("p-dice-cycles").value) || 2;
         
         let payout, nextbet, gameToPlay;
         
-        // JIKA SEDANG DALAM MODE RECOVERY - GUNAKAN BACCARAT
-        if (bot.recoveryMode) {
+        // PHASE 3 - BACCARAT
+        if (bot.bettingPhase === 3) {
             gameToPlay = "baccarat";
-            bot.currentStatus = `RECOVERY #${bot.recoveryAttempts}`;
             
-            // Dapatkan side berdasarkan trend mode
             const side = getBaccaratSide();
             bot.recoverySide = side;
             
-            // Hitung bet dengan progression
-            const multiplier = getRecoveryMultiplier();
-            nextbet = calculateRecoveryBet();
+            nextbet = calculateBaccaratBet();
             
-            bot.currentStatus = `RECOVERY #${bot.recoveryAttempts} (${side} | Step ${bot.recoveryConsecutiveLosses+1}/${multiplier}x | ${bot.recoveryTrendMode})`;
+            bot.currentStatus = `PHASE 3 (${side} | Fib ${getFibonacciMultiplier()}x)`;
             
             try {
                 const betData = {
@@ -708,7 +689,7 @@ ${gameInfo}
                     bot.lastError = "None";
                     
                     const result = betResult.state?.result || "unknown";
-                    console.log(`Baccarat ${side} -> ${result} | PnL: ${pnl.toFixed(8)} | Step: ${bot.recoveryConsecutiveLosses}`);
+                    console.log(`Phase 3 Baccarat ${side} -> ${result} | PnL: ${pnl.toFixed(8)} | Fib: ${getFibonacciMultiplier()}x`);
                 }
                 
                 if (bot.isRunning) {
@@ -721,33 +702,15 @@ ${gameInfo}
             }
         }
         
-        // JIKA TIDAK DALAM RECOVERY - NORMAL LIMBO/DICE
-        else {
-            const useRecovery = document.getElementById("p-use-recovery").checked;
-            bot.recoveryStatus = useRecovery ? "STANDBY" : "DISABLED";
-            bot.currentStatus = "WAGERING";
+        // PHASE 1 - WAGER BURN
+        else if (bot.bettingPhase === 1) {
+            const gameConfig = getPhase1GameAndPayout();
+            gameToPlay = gameConfig.game;
+            payout = gameConfig.payout;
+            nextbet = calculatePhase1Bet();
             
-            // Switch game antara limbo dan dice
-            if (bot.switchCounter >= bot.nextSwitchAt) {
-                if (bot.currentGame === "limbo") {
-                    bot.currentGame = "dice";
-                    bot.nextSwitchAt = diceCycles;
-                } else {
-                    bot.currentGame = "limbo";
-                    bot.nextSwitchAt = limboCycles;
-                }
-                bot.switchCounter = 0;
-            }
-            
-            gameToPlay = bot.currentGame;
-            
-            if (gameToPlay === "limbo") {
-                payout = limboPayout;
-            } else {
-                payout = 100 / diceChance;
-            }
-            
-            nextbet = calculateNormalBet();
+            bot.switchCounter++;
+            if (bot.switchCounter >= 7) bot.switchCounter = 0;
             
             try {
                 const res = await API.placeBet(nextbet, payout, gameToPlay);
@@ -762,8 +725,49 @@ ${gameInfo}
                 const bet = data.diceRoll || data.diceBet || data.limboBet;
                 
                 if (bet && bot.isRunning) {
-                    bot.stats.bets++; 
-                    bot.switchCounter++;
+                    bot.stats.bets++;
+                    bot.stats.wagered += bet.amount;
+                    const pft = (bet.payout - bet.amount);
+                    bot.stats.profit += pft;
+                    if (pft > 0) bot.stats.wins++; else bot.stats.loss++;
+                    if (bot.stats.profit < bot.stats.maxDD) bot.stats.maxDD = bot.stats.profit;
+                    bot.lastError = "None";
+                }
+                
+                if (bot.isRunning) {
+                    setTimeout(runLoop, 0);
+                }
+                
+            } catch (e) { 
+                bot.lastError = "Network Error"; 
+                if (bot.isRunning) setTimeout(runLoop, 1000); 
+            }
+        }
+        
+        // PHASE 2 - MID RISK
+        else if (bot.bettingPhase === 2) {
+            const gameConfig = getPhase2GameAndPayout();
+            gameToPlay = gameConfig.game;
+            payout = gameConfig.payout;
+            nextbet = calculatePhase2Bet();
+            
+            bot.switchCounter++;
+            if (bot.switchCounter >= 5) bot.switchCounter = 0;
+            
+            try {
+                const res = await API.placeBet(nextbet, payout, gameToPlay);
+                
+                if (res.errors) { 
+                    bot.lastError = res.errors[0].message; 
+                    setTimeout(runLoop, 800); 
+                    return; 
+                }
+                
+                const data = res?.data || res;
+                const bet = data.diceRoll || data.diceBet || data.limboBet;
+                
+                if (bet && bot.isRunning) {
+                    bot.stats.bets++;
                     bot.stats.wagered += bet.amount;
                     const pft = (bet.payout - bet.amount);
                     bot.stats.profit += pft;
@@ -786,7 +790,7 @@ ${gameInfo}
     function createUI() {
         if (document.getElementById("orion-wrap")) return;
         
-        const s = document.createElement("style");
+const s = document.createElement("style");
 s.innerHTML = `
     #orion-wrap {
         position: fixed;
@@ -795,21 +799,24 @@ s.innerHTML = `
         width: min(380px, calc(100vw - 20px));
         max-height: 95vh;
         overflow-y: auto;
-        padding: 16px;
         z-index: 99999;
-        border-radius: 20px;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        padding: 18px;
+        border-radius: 24px;
+        color: #eaf2ff;
         font-size: 13px;
-        color: #EEF3F7;
+        font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         background:
-            linear-gradient(180deg, rgba(33, 57, 71, 0.98) 0%, rgba(24, 45, 58, 0.985) 100%);
-        border: 1px solid rgba(95, 126, 145, 0.22);
+            radial-gradient(circle at top right, rgba(61, 153, 255, 0.08), transparent 28%),
+            radial-gradient(circle at top left, rgba(28, 116, 208, 0.10), transparent 26%),
+            linear-gradient(180deg, rgba(24, 44, 60, 0.98) 0%, rgba(17, 36, 49, 0.99) 100%);
+        border: 1px solid rgba(88, 124, 160, 0.20);
         box-shadow:
-            0 24px 50px rgba(0, 0, 0, 0.45),
-            inset 0 1px 0 rgba(255, 255, 255, 0.04);
-        backdrop-filter: blur(8px);
+            0 24px 60px rgba(0, 0, 0, 0.52),
+            inset 0 1px 0 rgba(255, 255, 255, 0.04),
+            0 0 0 1px rgba(70, 130, 180, 0.03);
+        backdrop-filter: blur(14px);
         scrollbar-width: thin;
-        scrollbar-color: #6C8393 #1A303C;
+        scrollbar-color: rgba(115, 140, 170, 0.65) transparent;
     }
 
     #orion-wrap::-webkit-scrollbar {
@@ -817,124 +824,124 @@ s.innerHTML = `
     }
 
     #orion-wrap::-webkit-scrollbar-track {
-        background: #1A303C;
-        border-radius: 999px;
+        background: transparent;
     }
 
     #orion-wrap::-webkit-scrollbar-thumb {
-        background: #5D7382;
+        background: linear-gradient(180deg, rgba(95, 115, 140, 0.95), rgba(55, 70, 90, 0.95));
         border-radius: 999px;
     }
 
     .orion-header {
         text-align: center;
-        margin-bottom: 16px;
-        position: relative;
-        cursor: move;
-        user-select: none;
-        -webkit-user-select: none;
+        margin-bottom: 18px;
     }
 
     .orion-title {
+        font-weight: 800;
+        font-size: 20px;
+        letter-spacing: 0.4px;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
+        gap: 10px;
+        color: #f8fbff;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    .orion-title span {
+        color: #ffbf47;
         font-size: 20px;
-        font-weight: 800;
-        letter-spacing: 0.4px;
-        color: #F5FAFD;
-        text-shadow: 0 1px 0 rgba(0,0,0,0.25);
+        line-height: 1;
     }
 
     .orion-badge {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        margin-top: 6px;
-        padding: 5px 12px;
+        margin-top: 8px;
+        padding: 7px 16px;
         border-radius: 999px;
         font-size: 10px;
-        font-weight: 700;
+        font-weight: 800;
         letter-spacing: 0.4px;
-        color: #DCE8F0;
-        background: rgba(15, 31, 41, 0.9);
-        border: 1px solid rgba(108, 131, 147, 0.28);
-    }
-
-    #orion-wrap.dragging {
-        transition: none !important;
-        cursor: grabbing;
-    }
-
-    #orion-wrap.dragging .orion-header {
-        cursor: grabbing;
+        color: #f1f5f9;
+        background: linear-gradient(180deg, #173042 0%, #102433 100%);
+        border: 1px solid rgba(88, 124, 160, 0.18);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
     }
 
     .orion-user {
+        margin: 10px 0 8px;
+        padding: 12px 14px;
+        border-radius: 18px;
+        background: linear-gradient(180deg, rgba(17, 40, 56, 0.96), rgba(13, 31, 43, 0.98));
+        border: 1px solid rgba(76, 110, 142, 0.18);
+        color: #e2ebf5;
         font-size: 12px;
-        font-weight: 600;
-        color: #D8E4EC;
-        background: linear-gradient(180deg, #17303D 0%, #132733 100%);
-        padding: 10px 12px;
-        border-radius: 14px;
-        border: 1px solid rgba(95, 126, 145, 0.2);
-        margin: 10px 0 6px;
+        font-weight: 700;
         word-break: break-word;
         box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
     }
 
     .orion-price {
-        font-size: 11px;
-        color: #FFFFFF;
-        background: linear-gradient(180deg, rgba(39, 122, 228, 0.2) 0%, rgba(32, 104, 203, 0.16) 100%);
-        padding: 8px 12px;
-        border-radius: 12px;
-        border: 1px solid rgba(39, 122, 228, 0.3);
-        margin: 8px 0 12px;
+        margin: 10px 0 14px;
+        padding: 14px 16px;
+        border-radius: 18px;
         text-align: center;
-        font-weight: 600;
+        font-size: 12px;
+        font-weight: 800;
+        color: #ffd166;
+        background: linear-gradient(180deg, rgba(36, 82, 128, 0.95), rgba(31, 72, 112, 0.98));
+        border: 1px solid rgba(56, 130, 210, 0.35);
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.04),
+            0 8px 20px rgba(0,0,0,0.12);
     }
 
     .orion-section {
-        background: linear-gradient(180deg, #17303D 0%, #122632 100%);
-        border-radius: 18px;
-        padding: 14px;
-        margin-bottom: 12px;
-        border: 1px solid rgba(95, 126, 145, 0.2);
+        margin-bottom: 14px;
+        padding: 16px;
+        border-radius: 22px;
+        background: linear-gradient(90deg, rgba(15, 36, 50, 0.98) 0%, rgba(21, 49, 66, 0.98) 100%);
+        border: 1px solid rgba(72, 104, 136, 0.18);
         box-shadow:
             inset 0 1px 0 rgba(255,255,255,0.03),
-            0 8px 18px rgba(0,0,0,0.14);
+            0 10px 24px rgba(0,0,0,0.12);
     }
 
     .orion-section-title {
-        font-size: 12px;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.45px;
-        color: #F3F8FC;
-        margin-bottom: 12px;
         display: flex;
         align-items: center;
-        gap: 7px;
+        gap: 8px;
+        margin-bottom: 14px;
+        color: #f4f8fc;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .orion-section-title span {
+        color: #d8c8ff;
     }
 
     .orion-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 10px;
+        gap: 12px;
     }
 
     .orion-input-group {
         display: flex;
         flex-direction: column;
-        gap: 5px;
+        gap: 6px;
     }
 
     .orion-input-group label {
         font-size: 10px;
         font-weight: 700;
-        color: #AFC0CB;
+        color: #aab8c8;
         text-transform: uppercase;
         letter-spacing: 0.35px;
     }
@@ -943,84 +950,47 @@ s.innerHTML = `
     .orion-select {
         width: 100%;
         box-sizing: border-box;
-        background: #10232E;
-        border: 1px solid #3E5B6B;
-        color: #F3F8FC;
-        padding: 11px 12px;
-        border-radius: 12px;
+        padding: 14px 14px;
+        border-radius: 16px;
+        border: 1px solid rgba(73, 113, 150, 0.55);
+        background: linear-gradient(180deg, #0a2130 0%, #09202d 100%);
+        color: #f7fbff;
         font-size: 13px;
-        transition: all 0.15s ease;
-        font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+        font-weight: 700;
+        font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+        outline: none;
+        transition: all 0.18s ease;
         box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
     }
 
     .orion-input::placeholder {
-        color: #7F96A5;
-    }
-
-    .orion-input:hover,
-    .orion-select:hover {
-        border-color: #577485;
-        background: #132935;
+        color: #7f96ab;
     }
 
     .orion-input:focus,
     .orion-select:focus {
-        outline: none;
-        border-color: #2A7BE4;
-        box-shadow: 0 0 0 3px rgba(42, 123, 228, 0.18);
-        background: #152D39;
-    }
-
-    .orion-select {
-        cursor: pointer;
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-    }
-
-    .orion-select option {
-        background: #10232E;
-        color: #F3F8FC;
-    }
-
-    .orion-checkbox {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin: 10px 0;
-        padding: 4px 0;
-    }
-
-    .orion-checkbox input {
-        width: 16px;
-        height: 16px;
-        accent-color: #2A7BE4;
-        margin: 0;
-    }
-
-    .orion-checkbox label {
-        font-size: 12px;
-        color: #D7E4EC;
-        font-weight: 500;
+        border-color: #3ea6ff;
+        box-shadow: 0 0 0 3px rgba(62, 166, 255, 0.14);
     }
 
     .orion-stats {
-        background: linear-gradient(180deg, #132734 0%, #10212B 100%);
-        border-radius: 18px;
-        padding: 14px;
-        border: 1px solid rgba(95, 126, 145, 0.2);
-        margin-bottom: 12px;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+        margin-bottom: 14px;
+        padding: 16px;
+        border-radius: 22px;
+        background: linear-gradient(90deg, rgba(15, 36, 50, 0.98) 0%, rgba(21, 49, 66, 0.98) 100%);
+        border: 1px solid rgba(72, 104, 136, 0.18);
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.03),
+            0 10px 24px rgba(0,0,0,0.12);
     }
 
     .orion-stat-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 10px;
-        padding: 7px 0;
-        border-bottom: 1px solid rgba(96, 121, 136, 0.18);
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(86, 108, 130, 0.22);
     }
 
     .orion-stat-row:last-child {
@@ -1028,232 +998,183 @@ s.innerHTML = `
     }
 
     .orion-stat-label {
-        color: #AFC0CB;
-        font-weight: 600;
-        font-size: 12px;
+        color: #aab8c8;
+        font-weight: 700;
+        letter-spacing: 0.15px;
     }
 
     .orion-stat-value {
-        font-weight: 700;
-        color: #F5FAFD;
-        font-family: 'SF Mono', Monaco, monospace;
+        color: #f8fbff;
+        font-weight: 800;
+        font-family: "SF Mono", Monaco, monospace;
     }
 
     .orion-stat-value.positive {
-        color: #75E38E;
+        color: #4ade80;
     }
 
     .orion-stat-value.negative {
-        color: #FF8B8B;
+        color: #ff6b6b;
+    }
+
+    .orion-log {
+        margin-top: 10px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: linear-gradient(180deg, #112534 0%, #0b1d2a 100%);
+        border: 1px solid rgba(72, 104, 136, 0.18);
+        color: #f8fbff;
+        font-size: 11px;
+        line-height: 1.45;
+        word-break: break-word;
     }
 
     .orion-buttons {
         display: flex;
-        gap: 10px;
-        margin-top: 8px;
+        gap: 12px;
+        margin-top: 12px;
     }
 
     .orion-btn {
         flex: 1;
-        padding: 12px;
-        border-radius: 12px;
-        font-weight: 800;
+        padding: 15px 16px;
+        border: none;
+        border-radius: 18px;
         font-size: 13px;
+        font-weight: 900;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
         cursor: pointer;
         transition: all 0.18s ease;
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
-        border: none;
     }
 
     .orion-btn-start {
-        background: linear-gradient(180deg, #2A7BE4 0%, #2371D8 100%);
-        color: #FFFFFF;
+        color: #ffffff;
+        background: linear-gradient(180deg, #3c92ff 0%, #2d79dd 100%);
         box-shadow:
-            0 10px 20px rgba(42, 123, 228, 0.24),
-            inset 0 1px 0 rgba(255,255,255,0.12);
+            0 10px 24px rgba(45, 121, 221, 0.28),
+            inset 0 1px 0 rgba(255,255,255,0.14);
     }
 
     .orion-btn-start:hover {
         transform: translateY(-1px);
-        background: linear-gradient(180deg, #3283EC 0%, #2777DE 100%);
         box-shadow:
-            0 14px 24px rgba(42, 123, 228, 0.28),
+            0 14px 28px rgba(45, 121, 221, 0.32),
             inset 0 1px 0 rgba(255,255,255,0.14);
     }
 
     .orion-btn-stop {
-        background: linear-gradient(180deg, #2A3944 0%, #1F2D37 100%);
-        border: 1px solid rgba(108, 131, 147, 0.28);
-        color: #D8E4EC;
+        color: #dce7f1;
+        background: linear-gradient(180deg, #33485a 0%, #2a3d4e 100%);
+        border: 1px solid rgba(108, 134, 156, 0.18);
         box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
     }
 
     .orion-btn-stop:hover {
         transform: translateY(-1px);
-        border-color: rgba(143, 166, 181, 0.35);
-        background: linear-gradient(180deg, #31424D 0%, #24323C 100%);
+        background: linear-gradient(180deg, #395063 0%, #304657 100%);
     }
 
-    .orion-donate-wrap {
-        margin-top: 12px;
-    }
-
-    .orion-btn-tip {
-        width: 100%;
-        border: none;
-        padding: 13px 14px;
-        border-radius: 14px;
-        font-weight: 800;
-        font-size: 13px;
-        cursor: pointer;
-        transition: all 0.18s ease;
-        text-transform: uppercase;
-        letter-spacing: 0.45px;
-        color: #FFFFFF;
-        background: linear-gradient(180deg, #19C37D 0%, #119C63 100%);
-        box-shadow:
-            0 10px 22px rgba(25, 195, 125, 0.26),
-            inset 0 1px 0 rgba(255,255,255,0.14);
-    }
-
-    .orion-btn-tip:hover {
-        transform: translateY(-1px);
-        background: linear-gradient(180deg, #20CE86 0%, #14A86B 100%);
-        box-shadow:
-            0 14px 26px rgba(25, 195, 125, 0.30),
-            inset 0 1px 0 rgba(255,255,255,0.16);
-    }
-
-    .orion-btn-tip:active {
-        transform: translateY(0);
-    }
-
-    .orion-log {
-        margin-top: 8px;
-        padding: 10px 12px;
-        background: linear-gradient(180deg, #132734 0%, #10212B 100%);
-        border-radius: 14px;
-        font-size: 11px;
-        color: #DDE8F0;
-        border: 1px solid rgba(95, 126, 145, 0.2);
-        word-break: break-word;
-        line-height: 1.45;
-    }
-
-    .recovery-badge {
-        display: inline-block;
+    .phase-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         padding: 4px 10px;
         border-radius: 999px;
         font-size: 10px;
-        font-weight: 700;
-        margin-left: 6px;
+        font-weight: 800;
+        letter-spacing: 0.3px;
     }
 
-    .recovery-badge.active {
-        background: rgba(42, 123, 228, 0.18);
-        color: #EAF3FF;
-        border: 1px solid rgba(42, 123, 228, 0.3);
+    .phase-badge.phase1 {
+        color: #fca5a5;
+        background: rgba(239, 68, 68, 0.14);
+        border: 1px solid rgba(239, 68, 68, 0.26);
     }
 
-    .recovery-badge.standby {
-        background: rgba(108, 131, 147, 0.18);
-        color: #D7E3EC;
-        border: 1px solid rgba(108, 131, 147, 0.28);
+    .phase-badge.phase2 {
+        color: #fde68a;
+        background: rgba(245, 158, 11, 0.14);
+        border: 1px solid rgba(245, 158, 11, 0.26);
     }
 
-    .recovery-badge.disabled {
-        background: rgba(79, 96, 108, 0.18);
-        color: #9FB0BC;
-        border: 1px solid rgba(79, 96, 108, 0.26);
+    .phase-badge.phase3 {
+        color: #d8b4fe;
+        background: rgba(168, 85, 247, 0.14);
+        border: 1px solid rgba(168, 85, 247, 0.26);
     }
 
     .baccarat-display {
-        background: linear-gradient(180deg, #132734 0%, #10212B 100%);
-        border-radius: 16px;
-        padding: 12px;
-        margin: 12px 0;
-        border: 1px solid rgba(95, 126, 145, 0.2);
+        margin-bottom: 14px;
+        padding: 16px;
+        border-radius: 22px;
+        background: linear-gradient(90deg, rgba(15, 36, 50, 0.98) 0%, rgba(21, 49, 66, 0.98) 100%);
+        border: 1px solid rgba(72, 104, 136, 0.18);
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.03),
+            0 10px 24px rgba(0,0,0,0.12);
     }
 
     .baccarat-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 9px 10px;
-        background: rgba(10, 22, 29, 0.32);
-        border: 1px solid rgba(95, 126, 145, 0.12);
-        border-radius: 12px;
+        padding: 10px 12px;
+        background: rgba(8, 25, 36, 0.65);
+        border: 1px solid rgba(72, 104, 136, 0.14);
+        border-radius: 14px;
         margin-bottom: 8px;
     }
 
     .baccarat-label {
         font-size: 11px;
-        font-weight: 700;
-        color: #B4C4CF;
+        font-weight: 800;
+        color: #aab8c8;
         text-transform: uppercase;
     }
 
     .baccarat-cards {
         font-size: 14px;
-        font-weight: 700;
-        font-family: 'SF Mono', Monaco, monospace;
-        color: #F5FAFD;
+        font-weight: 800;
+        font-family: "SF Mono", Monaco, monospace;
+        color: #f8fbff;
     }
 
     .baccarat-cards.player {
-        color: #F5FAFD;
+        color: #60a5fa;
     }
 
     .baccarat-cards.banker {
-        color: #D6E4EE;
+        color: #f87171;
     }
 
     .baccarat-winner {
         text-align: center;
         font-size: 13px;
-        font-weight: 800;
-        color: #FFFFFF;
-        margin-top: 8px;
-        padding: 10px;
-        background: linear-gradient(180deg, rgba(42, 123, 228, 0.22) 0%, rgba(35, 113, 216, 0.14) 100%);
-        border-radius: 12px;
-        border: 1px solid rgba(42, 123, 228, 0.28);
-    }
-
-    .recovery-status-text {
-        font-size: 10px;
-        margin-left: 24px;
-        margin-top: 4px;
-        padding: 5px 10px;
-        border-radius: 999px;
-        display: inline-block;
-        font-weight: 700;
-    }
-
-    .recovery-status-text.enabled {
-        background: rgba(42, 123, 228, 0.18);
-        color: #EDF5FF;
-        border: 1px solid rgba(42, 123, 228, 0.28);
-    }
-
-    .recovery-status-text.disabled {
-        background: rgba(79, 96, 108, 0.18);
-        color: #B7C4CE;
-        border: 1px solid rgba(79, 96, 108, 0.26);
+        font-weight: 900;
+        margin-top: 10px;
+        padding: 10px 12px;
+        background: rgba(51, 133, 222, 0.12);
+        border-radius: 16px;
+        border: 1px solid rgba(51, 133, 222, 0.20);
+        color: #f8fbff;
     }
 
     @media (max-width: 480px) {
         #orion-wrap {
-            top: 5px;
-            right: 5px;
-            width: calc(100vw - 10px);
-            padding: 12px;
-            border-radius: 16px;
+            top: 6px;
+            right: 6px;
+            width: calc(100vw - 12px);
+            padding: 14px;
+            border-radius: 18px;
         }
 
         .orion-title {
             font-size: 18px;
+        }
+
+        .orion-grid {
+            gap: 10px;
         }
     }
 `;
@@ -1266,20 +1187,20 @@ d.innerHTML = `
         <div class="orion-title">
             <span>⚜️</span> PASSOLARGO BOT <span>⚜️</span>
         </div>
-        <div class="orion-badge">PREMIUM EDITION</div>
+        <div class="orion-badge">PREMIUM EDITION - 3 PHASE SYSTEM</div>
     </div>
-    
+
     <div class="orion-user" id="st-user">
         Loading...
     </div>
-    
+
     <div class="orion-price" id="st-idr-price">
         Loading price...
     </div>
-    
+
     <div class="orion-section">
         <div class="orion-section-title">
-            <span>⚙️</span> SYSTEM CONFIG
+            <span>✺</span> SYSTEM CONFIG
         </div>
         <div class="orion-grid">
             <div style="grid-column: span 2">
@@ -1288,111 +1209,9 @@ d.innerHTML = `
                     <select id="p-currency" class="orion-select"></select>
                 </div>
             </div>
-            <div class="orion-input-group">
-                <label>LIMBO BASE BET</label>
-                <input id="p-limbo-basebet" class="orion-input" value="0" step="any">
-            </div>
-            <div class="orion-input-group">
-                <label>DICE BASE BET</label>
-                <input id="p-dice-basebet" class="orion-input" value="0.01" step="any">
-            </div>
-            <div class="orion-input-group">
-                <label>DIVIDER</label>
-                <input id="p-div" class="orion-input" value="1000" placeholder="0 = manual basebet">
-            </div>
         </div>
     </div>
-    
-    <div class="orion-section">
-        <div class="orion-section-title">
-            <span>🎲</span> LIMBO STRATEGY
-        </div>
-        <div class="orion-grid">
-            <div class="orion-input-group">
-                <label>PAYOUT</label>
-                <input id="p-limbo-payout" class="orion-input" value="1.03" step="0.0001">
-            </div>
-            <div class="orion-input-group">
-                <label>CYCLES</label>
-                <input id="p-limbo-cycles" class="orion-input" value="1">
-            </div>
-        </div>
-    </div>
-    
-    <div class="orion-section">
-        <div class="orion-section-title">
-            <span>🎯</span> DICE STRATEGY
-        </div>
-        <div class="orion-grid">
-            <div class="orion-input-group">
-                <label>CHANCE %</label>
-                <input id="p-dice-chance" class="orion-input" value="99.98" step="0.1">
-            </div>
-            <div class="orion-input-group">
-                <label>CYCLES</label>
-                <input id="p-dice-cycles" class="orion-input" value="25">
-            </div>
-        </div>
-    </div>
-    
-    <div class="orion-section">
-        <div class="orion-section-title">
-            <span>🔄</span> BACCARAT RECOVERY MODE
-            <span id="recovery-status-badge" class="recovery-badge disabled">DISABLED</span>
-        </div>
-        <div class="orion-checkbox">
-            <input type="checkbox" id="p-use-recovery" checked>
-            <label>Enable Baccarat Recovery</label>
-        </div>
-        <div id="recovery-toggle-status" class="recovery-status-text enabled">✓ RECOVERY IS ENABLED</div>
-        
-        <div class="orion-grid">
-            <div class="orion-input-group">
-                <label>BASE BET</label>
-                <input id="p-baccarat-basebet" class="orion-input" value="0.01" step="any">
-            </div>
-            <div class="orion-input-group">
-                <label>PROGRESSION STEPS</label>
-                <input id="p-recovery-steps" class="orion-input" value="[1,2,3,4,8,16,32,64,128,256,512]">
-            </div>
-            <div class="orion-input-group">
-                <label>LOSS TRIGGER %</label>
-                <input id="p-loss-trigger" class="orion-input" value="0.1" step="0.1">
-            </div>
-            <div class="orion-input-group">
-                <label>MAX ATTEMPTS</label>
-                <input id="p-max-recovery" class="orion-input" value="3" step="1">
-            </div>
-            <div class="orion-input-group" style="grid-column: span 2">
-                <label>TREND MODE</label>
-                <select id="p-recovery-trend" class="orion-select">
-                    <option value="follow">Follow Winner</option>
-                    <option value="fix">Fix Position</option>
-                    <option value="rotate">Rotate</option>
-                </select>
-            </div>
-            <div class="orion-input-group" style="grid-column: span 2" id="fix-side-container">
-                <label>FIX SIDE</label>
-                <select id="p-fix-side" class="orion-select">
-                    <option value="player">PLAYER</option>
-                    <option value="banker">BANKER</option>
-                </select>
-            </div>
-        </div>
-        
-        <div class="baccarat-display" id="baccarat-display">
-            <div class="baccarat-row">
-                <span class="baccarat-label">PLAYER</span>
-                <span class="baccarat-cards player" id="baccarat-player-cards">-</span>
-            </div>
-            <div class="baccarat-row">
-                <span class="baccarat-label">BANKER</span>
-                <span class="baccarat-cards banker" id="baccarat-banker-cards">-</span>
-            </div>
-            <div class="baccarat-winner" id="baccarat-winner">-</div>
-        </div>
-    </div>
-    
+
     <div class="orion-stats">
         <div class="orion-stat-row">
             <span class="orion-stat-label">TIME</span>
@@ -1400,11 +1219,7 @@ d.innerHTML = `
         </div>
         <div class="orion-stat-row">
             <span class="orion-stat-label">STATUS</span>
-            <span class="orion-stat-value" id="st-status" style="color: #38BDF8">IDLE</span>
-        </div>
-        <div class="orion-stat-row">
-            <span class="orion-stat-label">RECOVERY</span>
-            <span class="orion-stat-value" id="st-recovery">DISABLED</span>
+            <span class="orion-stat-value" id="st-status" style="color: #3ea6ff">IDLE</span>
         </div>
         <div class="orion-stat-row">
             <span class="orion-stat-label">BALANCE</span>
@@ -1420,7 +1235,7 @@ d.innerHTML = `
         </div>
         <div class="orion-stat-row">
             <span class="orion-stat-label">MAX DD</span>
-            <span class="orion-stat-value" style="color: #F87171" id="st-dd">0.00000000</span>
+            <span class="orion-stat-value" style="color: #ff6b6b" id="st-dd">0.00000000</span>
         </div>
         <div class="orion-stat-row">
             <span class="orion-stat-label">BETS</span>
@@ -1434,239 +1249,39 @@ d.innerHTML = `
             <span class="orion-stat-label">SPEED</span>
             <span class="orion-stat-value" id="st-speed">0 b/s</span>
         </div>
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">PHASE</span>
+            <span class="orion-stat-value" id="st-phase">1 - WAGER BURN</span>
+        </div>
+        <div class="orion-stat-row">
+            <span class="orion-stat-label">TOTAL LOSS %</span>
+            <span class="orion-stat-value" id="st-loss-pct">0.00%</span>
+        </div>
     </div>
-    
+
+    <div class="baccarat-display" id="baccarat-display" style="display: none;">
+        <div class="baccarat-row">
+            <span class="baccarat-label">PLAYER</span>
+            <span class="baccarat-cards player" id="baccarat-player-cards">-</span>
+        </div>
+        <div class="baccarat-row">
+            <span class="baccarat-label">BANKER</span>
+            <span class="baccarat-cards banker" id="baccarat-banker-cards">-</span>
+        </div>
+        <div class="baccarat-winner" id="baccarat-winner">-</div>
+    </div>
+
     <div class="orion-log" id="st-log">
         None
     </div>
-            
+
     <div class="orion-buttons">
         <button id="p-start" class="orion-btn orion-btn-start">START</button>
         <button id="p-stop" class="orion-btn orion-btn-stop">STOP</button>
     </div>
-
-    <div class="orion-donate-wrap">
-        <button id="p-tip" class="orion-btn-tip">🤑 SEND TIP</button>
-    </div>
-
-    <div class="orion-donate-wrap">
-        <button id="p-reset-pos" class="orion-btn orion-btn-stop">RESET POSITION</button>
-    </div>
 `;
 
 document.body.appendChild(d);
-
-document.getElementById("p-tip")?.addEventListener("click", () => {
-    const tipUrl = `${window.location.origin}/affiliate/commission?name=mrdogecoin&modal=wallet&currency=trx&tab=tip`;
-
-    const popup = window.open(
-        tipUrl,
-        "stake_tip_popup",
-        "width=520,height=760,left=200,top=80,resizable=yes,scrollbars=yes"
-    );
-
-    if (popup) {
-        setTimeout(() => {
-            window.focus();
-        }, 150);
-    } else {
-        console.error("Popup bloqueada pelo navegador.");
-    }
-});
-
-document.getElementById("p-reset-pos")?.addEventListener("click", () => {
-    localStorage.removeItem("orionWrapPosition");
-    d.style.left = "";
-    d.style.top = "10px";
-    d.style.right = "10px";
-    location.reload();
-});
-
-(() => {
-    const wrap = document.getElementById("orion-wrap");
-    const header = wrap.querySelector(".orion-header");
-    const STORAGE_KEY = "orionWrapPosition";
-
-    let isDragging = false;
-    let startX = 0;
-    let startY = 0;
-    let initialLeft = 0;
-    let initialTop = 0;
-
-    function clamp(value, min, max) {
-        return Math.min(Math.max(value, min), max);
-    }
-
-    function savePosition(left, top) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ left, top }));
-    }
-
-    function loadPosition() {
-        try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (!raw) return null;
-            return JSON.parse(raw);
-        } catch {
-            return null;
-        }
-    }
-
-    function applyPosition(left, top) {
-        const rect = wrap.getBoundingClientRect();
-        const maxLeft = Math.max(0, window.innerWidth - rect.width);
-        const maxTop = Math.max(0, window.innerHeight - rect.height);
-
-        const clampedLeft = clamp(left, 0, maxLeft);
-        const clampedTop = clamp(top, 0, maxTop);
-
-        wrap.style.left = clampedLeft + "px";
-        wrap.style.top = clampedTop + "px";
-        wrap.style.right = "auto";
-    }
-
-    const initialRect = wrap.getBoundingClientRect();
-    wrap.style.left = initialRect.left + "px";
-    wrap.style.top = initialRect.top + "px";
-    wrap.style.right = "auto";
-
-    const saved = loadPosition();
-    if (saved && typeof saved.left === "number" && typeof saved.top === "number") {
-        applyPosition(saved.left, saved.top);
-    }
-
-    function onPointerDown(e) {
-        if (e.button !== 0) return;
-        if (
-            e.target.closest("button") ||
-            e.target.closest("input") ||
-            e.target.closest("select") ||
-            e.target.closest("textarea") ||
-            e.target.closest("label")
-        ) return;
-
-        isDragging = true;
-        wrap.classList.add("dragging");
-
-        const rect = wrap.getBoundingClientRect();
-        initialLeft = rect.left;
-        initialTop = rect.top;
-        startX = e.clientX;
-        startY = e.clientY;
-
-        document.addEventListener("pointermove", onPointerMove);
-        document.addEventListener("pointerup", onPointerUp);
-    }
-
-    function onPointerMove(e) {
-        if (!isDragging) return;
-
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-
-        const rect = wrap.getBoundingClientRect();
-        const maxLeft = Math.max(0, window.innerWidth - rect.width);
-        const maxTop = Math.max(0, window.innerHeight - rect.height);
-
-        const newLeft = clamp(initialLeft + dx, 0, maxLeft);
-        const newTop = clamp(initialTop + dy, 0, maxTop);
-
-        wrap.style.left = newLeft + "px";
-        wrap.style.top = newTop + "px";
-    }
-
-    function onPointerUp() {
-        if (!isDragging) return;
-
-        isDragging = false;
-        wrap.classList.remove("dragging");
-
-        const rect = wrap.getBoundingClientRect();
-        savePosition(rect.left, rect.top);
-
-        document.removeEventListener("pointermove", onPointerMove);
-        document.removeEventListener("pointerup", onPointerUp);
-    }
-
-    header.addEventListener("pointerdown", onPointerDown);
-
-    window.addEventListener("resize", () => {
-        const rect = wrap.getBoundingClientRect();
-        applyPosition(rect.left, rect.top);
-
-        const newRect = wrap.getBoundingClientRect();
-        savePosition(newRect.left, newRect.top);
-    });
-})();
-
-document.getElementById("p-recovery-trend").addEventListener("change", function(e) {
-    const fixSideContainer = document.getElementById("fix-side-container");
-    if (e.target.value === "fix") {
-        fixSideContainer.style.display = "block";
-    } else {
-        fixSideContainer.style.display = "none";
-    }
-});
-
-// estado inicial do fix-side
-(() => {
-    const trend = document.getElementById("p-recovery-trend");
-    const fixSideContainer = document.getElementById("fix-side-container");
-    fixSideContainer.style.display = trend.value === "fix" ? "block" : "none";
-})();
-        
-        // Event listener untuk trend mode
-        document.getElementById("p-recovery-trend").addEventListener("change", function(e) {
-            const fixSideContainer = document.getElementById("fix-side-container");
-            if (e.target.value === "fix") {
-                fixSideContainer.style.display = "block";
-            } else {
-                fixSideContainer.style.display = "none";
-            }
-        });
-        
-        // Event listener untuk checkbox recovery
-        document.getElementById("p-use-recovery").addEventListener("change", function(e) {
-            updateRecoveryToggleStatus(e.target.checked);
-            updateRecoveryUI();
-        });
-        
-        // Fungsi untuk update status toggle
-        function updateRecoveryToggleStatus(enabled) {
-            const statusEl = document.getElementById("recovery-toggle-status");
-            if (enabled) {
-                statusEl.className = "recovery-status-text enabled";
-                statusEl.innerHTML = "✓ BACCARAT RECOVERY IS ENABLED";
-            } else {
-                statusEl.className = "recovery-status-text disabled";
-                statusEl.innerHTML = "✗ BACCARAT RECOVERY IS DISABLED";
-            }
-        }
-        
-        function updateRecoveryUI() {
-            const enabled = document.getElementById("p-use-recovery").checked;
-            const badge = document.getElementById("recovery-status-badge");
-            const recoveryStat = document.getElementById("st-recovery");
-            
-            if (enabled) {
-                if (bot.recoveryMode) {
-                    badge.className = "recovery-badge active";
-                    badge.innerText = "ACTIVE";
-                    if (recoveryStat) recoveryStat.innerText = "ACTIVE";
-                } else {
-                    badge.className = "recovery-badge standby";
-                    badge.innerText = "STANDBY";
-                    if (recoveryStat) recoveryStat.innerText = "STANDBY";
-                }
-            } else {
-                badge.className = "recovery-badge disabled";
-                badge.innerText = "DISABLED";
-                if (recoveryStat) recoveryStat.innerText = "DISABLED";
-            }
-        }
-        
-        // Set initial toggle status
-        updateRecoveryToggleStatus(true);
-        document.getElementById("fix-side-container").style.display = "none";
         
         document.getElementById("p-start").onclick = async () => { 
             if(!bot.isRunning){ 
@@ -1680,18 +1295,18 @@ document.getElementById("p-recovery-trend").addEventListener("change", function(
                 bot.stats.loss = 0; 
                 bot.stats.maxDD = 0;
                 bot.switchCounter = 0;
+                bot.bettingPhase = 1;
+                bot.initialBalance = bot.stats.startBal; // SET INITIAL BALANCE
+                bot.phaseStartBalance = bot.stats.startBal;
                 bot.currentGame = "limbo";
-                bot.nextSwitchAt = parseInt(document.getElementById("p-limbo-cycles").value) || 3;
                 
-                // Reset recovery
+                // Reset recovery variables
                 bot.recoveryMode = false;
-                bot.recoveryAttempts = 0;
-                bot.recoveryConsecutiveLosses = 0;
+                bot.recoveryFibonacciIndex = 0;
+                bot.recoveryLastResults = [];
                 bot.baccaratCards = { player: [], banker: [], winner: null };
                 
-                updateRecoveryUI();
-                
-                setTimeout(() => API.sendTg("🚀 *SYSTEM ENGAGED*"), 1000);
+                setTimeout(() => API.sendTg("🚀 *SYSTEM ENGAGED - 3 PHASE SYSTEM* 🚀\nPhase 1: WAGER BURN"), 1000);
                 
                 if (reportInterval) clearInterval(reportInterval);
                 reportInterval = setInterval(() => {
@@ -1725,46 +1340,45 @@ document.getElementById("p-recovery-trend").addEventListener("change", function(
             document.getElementById("st-time").innerText = new Date(elapsed * 1000).toISOString().substr(11, 8);
         }
         
-        let statusText = bot.currentStatus;
-        if (bot.recoveryMode) {
-            statusText = `🔥 RECOVERY #${bot.recoveryAttempts} (${bot.recoverySide} | Step ${bot.recoveryConsecutiveLosses+1})`;
+        const totalLossPct = getTotalLossPercentage();
+        let statusText = "";
+        if (bot.bettingPhase === 1) {
+            statusText = `PHASE 1 - WAGER BURN (${bot.currentGame})`;
+        } else if (bot.bettingPhase === 2) {
+            statusText = `PHASE 2 - MID RISK (${bot.currentGame})`;
         } else {
-            statusText = `${bot.currentStatus} (${bot.currentGame})`;
+            const fibMultiplier = getFibonacciMultiplier();
+            statusText = `PHASE 3 - BACCARAT (${bot.recoverySide} | Fib ${fibMultiplier}x)`;
         }
         document.getElementById("st-status").innerText = statusText;
         
-        document.getElementById("st-startbal").innerText = (bot.stats.startBal + bot.stats.profit).toFixed(8);
+        // Show/hide baccarat display based on phase
+        const baccaratDisplay = document.getElementById("baccarat-display");
+        if (baccaratDisplay) {
+            baccaratDisplay.style.display = bot.bettingPhase === 3 ? "block" : "none";
+        }
+        
+        document.getElementById("st-startbal").innerText = getCurrentBalance().toFixed(8);
         document.getElementById("st-profit").innerText = bot.stats.profit.toFixed(8);
         document.getElementById("st-wager").innerText = bot.stats.wagered.toFixed(8);
         document.getElementById("st-dd").innerText = bot.stats.maxDD.toFixed(8);
         document.getElementById("st-bets").innerText = bot.stats.bets;
         document.getElementById("st-wl").innerText = `${bot.stats.wins}/${bot.stats.loss}`;
         document.getElementById("st-speed").innerText = bot.startTime ? (bot.stats.bets / ((new Date() - bot.startTime) / 1000 || 1)).toFixed(2) + " b/s" : "0 b/s";
+        
+        const phaseText = bot.bettingPhase === 1 ? "1 - WAGER BURN" : (bot.bettingPhase === 2 ? "2 - MID RISK" : "3 - BACCARAT");
+        document.getElementById("st-phase").innerText = phaseText;
+        document.getElementById("st-loss-pct").innerText = totalLossPct.toFixed(2) + "%";
         document.getElementById("st-log").innerText = bot.lastError;
         
-        // Update recovery status di UI
-        const useRecovery = document.getElementById("p-use-recovery")?.checked;
-        if (useRecovery !== undefined) {
-            if (!useRecovery) {
-                bot.recoveryStatus = "DISABLED";
-            } else if (bot.recoveryMode) {
-                bot.recoveryStatus = "ACTIVE";
-            } else if (bot.isRunning) {
-                bot.recoveryStatus = "STANDBY";
-            } else {
-                bot.recoveryStatus = "DISABLED";
-            }
-            
-            const badge = document.getElementById("recovery-status-badge");
-            const recoveryStat = document.getElementById("st-recovery");
-            
-            if (badge) {
-                badge.className = `recovery-badge ${bot.recoveryStatus.toLowerCase()}`;
-                badge.innerText = bot.recoveryStatus;
-            }
-            if (recoveryStat) {
-                recoveryStat.innerText = bot.recoveryStatus;
-            }
+        // Color coding for loss percentage
+        const lossPctEl = document.getElementById("st-loss-pct");
+        if (totalLossPct > 0.5) {
+            lossPctEl.style.color = "#F87171";
+        } else if (totalLossPct > 0.2) {
+            lossPctEl.style.color = "#FBBF24";
+        } else {
+            lossPctEl.style.color = "#4ADE80";
         }
     }, 400);
 
